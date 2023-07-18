@@ -1,0 +1,54 @@
+---
+group:
+  people:
+    name: People
+    entities:
+      - person.marcus
+
+input_boolean:
+  away_mode:
+    name: "Away mode"
+    icon: mdi:home-search
+
+input_number:
+  edge_radius:
+    name: Edge Radius
+    min: 0
+    max: 10
+    step: 1
+    unit_of_measurement: miles
+    icon: mdi:radius-outline
+  home_radius:
+    name: Home Radius
+    min: 0
+    max: 10
+    step: 1
+    unit_of_measurement: miles
+    icon: mdi:radius-outline
+  nearby_radius:
+    name: Nearby Radius
+    min: 0
+    max: 10
+    step: 1
+    unit_of_measurement: miles
+    icon: mdi:radius-outline
+
+template:
+  - sensor:
+      - unique_id: proximity_zone
+        name: Zone
+        icon: mdi:radius
+        state: >
+          {% set prox_mi = states("proximity.home")|int / 5280 %}
+          {% set home = states("input_number.home_radius")|int %}
+          {% set nearby = states("input_number.nearby_radius")|int %}
+          {% set edge = states("input_number.edge_radius")|int %}
+          {% if prox_mi <= home %}
+            Home
+          {% elif home < prox_mi <= nearby %}
+            Nearby
+          {% elif nearby < prox_mi <= edge %}
+            Edge
+          {% else %}
+            Away
+          {% endif %}

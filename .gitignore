@@ -1,0 +1,18 @@
+.cloud/
+.storage/
+OZW_Log.txt
+deps/
+home-assistant.log*
+known_devices.yaml
+pyozw.sqlite
+secrets.yaml
+*.db-shm
+*.db-wal
+*.db
+*.crt
+*.csr
+*.key
+*.pyc
+
+# TODO: Remove after esphome is added as a gitmodule
+esphome

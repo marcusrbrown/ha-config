@@ -1,0 +1,21 @@
+- id: '1664765837473'
+  name: Keep Temp Between 76 And 80
+  entities:
+    climate.sensi_0d5197_thermostat:
+      hvac_modes:
+      - 'off'
+      - heat
+      - cool
+      - heat_cool
+      min_temp: 45
+      max_temp: 99
+      current_temperature: 77
+      temperature:
+      target_temp_high: 80
+      target_temp_low: 76
+      hvac_action: idle
+      friendly_name: Sensi-0D5197 Thermostat
+      supported_features: 3
+      state: heat_cool
+  icon: mdi:thermometer-auto
+  metadata: {}

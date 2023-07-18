@@ -1,0 +1,41 @@
+- id: "1632730575197"
+  alias: "Zone Notification: Marcus leaving Home Zone"
+  description: ""
+  use_blueprint:
+    path: homeassistant/notify_leaving_zone.yaml
+    input:
+      person_entity: person.marcus
+      zone_entity: zone.home
+      notify_device: 7af9da062a2067344a12817cca91b767
+- id: "1664389851060"
+  alias: LG webOS TV UH6550 - Turn On Action
+  description: Turn on the TV in the Living Room
+  use_blueprint:
+    path: cvroque/webostv_turn_on.yaml
+    input:
+      webostv: media_player.lg_webos_tv_uh6550
+      webostv_mac: !secret lg_uh6550_mac
+- id: "1664765485039"
+  alias: Notify on System Updates
+  description: Send update notifications for HA Core, HA OS, HA Supervisor, and HACS.
+  use_blueprint:
+    path: mdegat01/update_notifications.yaml
+    input:
+      reminder_hours: "6"
+      update_entities:
+        - update.hacs_update
+        - update.home_assistant_core_update
+        - update.home_assistant_operating_system_update
+        - update.home_assistant_supervisor_update
+      mobile_app_device: 373a9c4bf43d98031650912beda437dd
+      mobile_app_device_2: 373a9c4bf43d98031650912beda437dd
+      only_after: 07:00:00
+      only_before: "21:30:00"
+- id: "1688878840195"
+  alias: Turn on LG-UF6490
+  description: Turn on the LG TV in the Garage
+  use_blueprint:
+    path: cvroque/webostv_turn_on.yaml
+    input:
+      webostv: media_player.lg_uf6490
+      webostv_mac: !secret lg_uf6490_mac
