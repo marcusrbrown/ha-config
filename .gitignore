@@ -12,6 +12,7 @@ secrets.yaml
 *.crt
 *.csr
 *.key
+*.js.map
 *.pyc
 
 # TODO: Remove after esphome is added as a gitmodule

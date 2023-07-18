@@ -15,4 +15,3 @@
       name: >
         {% set name = states("input_select.theme") -%}
         {{ name }}
-
