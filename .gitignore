@@ -9,7 +9,7 @@ secrets.yaml
 *.db-shm
 *.db-wal
 *.db
-*.crt
+*.crtxxxxxxxxxxxxxxxxxxxxxxx
 *.csr
 *.key
 *.js.map
@@ -17,3 +17,11 @@ secrets.yaml
 
 # TODO: Remove after esphome is added as a gitmodule
 esphome
+
+# Custom Components
+
+# Generated images contain personal/private info
+/custom_components/mail_and_packages/images/
+!/custom_components/mail_and_packages/images/*.png
+/www/mail_and_packages/
+!/www/mail_and_packages/*.png
