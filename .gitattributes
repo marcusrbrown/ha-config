@@ -1,5 +1,5 @@
 * text=auto eol=lf
 
-custom_components/* linguist-vendored
-www/*               linguist-vendored
-.HA_VERSION         linguist-vendored
+/custom_components/** linguist-vendored
+/www/**               linguist-vendored
+.HA_VERSION           linguist-generated
