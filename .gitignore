@@ -15,9 +15,6 @@ secrets.yaml
 *.js.map
 *.pyc
 
-# TODO: Remove after esphome is added as a gitmodule
-esphome
-
 # Custom Components
 
 # Generated images contain personal/private info
