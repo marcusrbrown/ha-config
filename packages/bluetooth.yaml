@@ -1,0 +1,94 @@
+---
+homeassistant:
+  customize:
+    alert.bluetooth_offline:
+      icon: mdi:bluetooth-off
+      category: bluetooth
+
+    device_tracker.amazfit_gts_2_mini_ble:
+      device_type: bluetooth_le
+    device_tracker.amazfit_t_rex_pro_ble:
+      device_type: bluetooth_le
+    device_tracker.b06_plus_bt:
+      device_type: bluetooth
+    device_tracker.jbl_charge_5_ble:
+      device_type: bluetooth_le
+    device_tracker.marcus_iphone_bt:
+      device_type: bluetooth
+    device_tracker.thingy_one_ble:
+      device_type: bluetooth_le
+    device_tracker.triones_ffff140345ba_ble:
+      device_type: bluetooth_le
+    device_tracker.triones_ffff9104f633_ble:
+      device_type: bluetooth_le
+
+device_tracker:
+  - platform: bluetooth_le_tracker
+    track_new_devices: false
+    track_battery: true
+    track_battery_interval: "24:00"
+
+input_boolean:
+  bluetooth_alerts:
+    name: Bluetooth Alerts
+    icon: mdi:alert
+
+alert:
+  bluetooth_offline:
+    name: Bluetooth Offline
+    title: Bluetooth Offline
+    message: Home Assistant Bluetooth is not running.
+    done_message: clear_notification
+    entity_id: binary_sensor.bluetooth_offline_alert
+    state: "on"
+    repeat: 3600
+    #notifiers:
+    data:
+      tag: bluetooth_offline
+      group: System
+      channel: Alert
+      importance: max
+      ttl: 0
+      priority: high
+      visibility: public
+      notification_icon: mdi:bluetooth
+      clickAction: /lovelace/system
+      actions:
+        - action: reboot_server
+          title: Reboot
+
+template:
+  - binary_sensor:
+      - name: Bluetooth Offline Alert
+        unique_id: bluetooth_offline_alert
+        icon: mdi:bluetooth
+        device_class: problem
+        delay_on: 60
+        state: >
+          {{ expand(state_attr('sensor.bluetooth_devices','entity_id'))
+                |selectattr('state','eq','home')|list|count == 0
+              and expand(state_attr('sensor.bluetooth_le_devices','entity_id'))
+                |selectattr('state','eq','home')|list|count == 0 }}
+
+  - sensor:
+      - name: Bluetooth Devices
+        unique_id: bluetooth_devices
+        icon: mdi:bluetooth-settings
+        unit_of_measurement: devices
+        state: >
+          {% set c = state_attr(this.entity_id,'entity_id') %}
+          {{ c|count if c != none else none }}
+        attributes:
+          entity_id: >
+            {{ states.device_tracker|selectattr('attributes.device_type','eq','bluetooth')|map(attribute='entity_id')|list }}
+
+      - name: Bluetooth LE Devices
+        unique_id: bluetooth_le_devices
+        icon: mdi:bluetooth-settings
+        unit_of_measurement: devices
+        state: >
+          {% set c = state_attr(this.entity_id,'entity_id') %}
+          {{ c|count if c != none else none }}
+        attributes:
+          entity_id: >
+            {{ states.device_tracker|selectattr('attributes.device_type','eq','bluetooth_le')|map(attribute='entity_id')|list }}
