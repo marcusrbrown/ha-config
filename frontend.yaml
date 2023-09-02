@@ -1,0 +1,4 @@
+---
+extra_module_url:
+  - /hacsfiles/hass-bha-icons/hass-bha-icons.js
+themes: !include_dir_merge_named /config/frontend/themes
