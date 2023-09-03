@@ -1,0 +1,3 @@
+---
+ignored_unavailable_entities:
+  entities: !include /config/include/ignored_entities.yaml
