@@ -1,0 +1,40 @@
+---
+- name: panel-config-integrations
+  sidebar_title: Integrations
+  sidebar_icon: mdi:home-assistant
+  js_url: /api/hassio/app/entrypoint.js
+  url_path: "config/integrations"
+  embed_iframe: true
+  require_admin: true
+  config:
+    ingress: core_configurator
+
+- name: panel-config-addons
+  sidebar_title: Add-ons
+  sidebar_icon: mdi:puzzle
+  js_url: /api/hassio/app/entrypoint.js
+  url_path: "hassio/dashboard"
+  embed_iframe: true
+  require_admin: true
+  config:
+    ingress: core_configurator
+
+- name: panel-config-logs
+  sidebar_title: Logs
+  sidebar_icon: mdi:book-cog
+  js_url: /api/hassio/app/entrypoint.js
+  url_path: "config/logs"
+  embed_iframe: true
+  require_admin: true
+  config:
+    ingress: core_configurator
+
+- name: panel-developer-tools-states
+  sidebar_title: States
+  sidebar_icon: mdi:alpha-s-box
+  js_url: /api/hassio/app/entrypoint.js
+  url_path: "developer-tools/state"
+  embed_iframe: true
+  require_admin: true
+  config:
+    ingress: core_configurator
