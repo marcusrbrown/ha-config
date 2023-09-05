@@ -1,4 +1,5 @@
 ---
 extra_module_url:
   - /hacsfiles/hass-bha-icons/hass-bha-icons.js
+  - /hacsfiles/lovelace-card-mod/card-mod.js
 themes: !include_dir_merge_named /config/frontend/themes
