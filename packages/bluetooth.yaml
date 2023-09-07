@@ -7,26 +7,52 @@ homeassistant:
 
     device_tracker.amazfit_gts_2_mini_ble:
       device_type: bluetooth_le
+      name: Amazfit GTS 2 mini (BLE)
     device_tracker.amazfit_t_rex_pro_ble:
       device_type: bluetooth_le
+      name: Amazfit T-Rex Pro (BLE)
     device_tracker.b06_plus_bt:
       device_type: bluetooth
     device_tracker.jbl_charge_5_ble:
       device_type: bluetooth_le
+      name: JBL Charge 5 (BLE)
     device_tracker.marcus_iphone_bt:
       device_type: bluetooth
     device_tracker.thingy_one_ble:
       device_type: bluetooth_le
+      name: Thingy:52 One (BLE)
     device_tracker.triones_ffff140345ba_ble:
       device_type: bluetooth_le
+      name: Triones 140345BA (BLE)
     device_tracker.triones_ffff9104f633_ble:
       device_type: bluetooth_le
+      name: Triones 9104F633 (BLE)
 
-device_tracker:
-  - platform: bluetooth_le_tracker
-    track_new_devices: false
-    track_battery: true
-    track_battery_interval: "24:00"
+ble_monitor:
+  active_scan: true
+  bt_auto_restart: true
+  bt_interface:
+    - !secret BT_INTERFACE_FEE98E
+  devices:
+    - mac: !secret BLE_TRACKER_DEVICE_0345BA_MAC
+      name: !secret BLE_TRACKER_DEVICE_0345BA_NAME
+      track_device: true
+    - mac: !secret BLE_TRACKER_DEVICE_04F633_MAC
+      name: !secret BLE_TRACKER_DEVICE_04F633_NAME
+      track_device: true
+    - mac: !secret BLE_TRACKER_DEVICE_6AF138_MAC
+      name: !secret BLE_TRACKER_DEVICE_6AF138_NAME
+      track_device: true
+    - mac: !secret BLE_TRACKER_DEVICE_724388_MAC
+      name: !secret BLE_TRACKER_DEVICE_724388_NAME
+      track_device: true
+    - mac: !secret BLE_TRACKER_DEVICE_B859FE_MAC
+      name: !secret BLE_TRACKER_DEVICE_B859FE_NAME
+      track_device: true
+    - mac: !secret BLE_TRACKER_DEVICE_ECB448_MAC
+      name: !secret BLE_TRACKER_DEVICE_ECB448_NAME
+      track_device: true
+  discovery: false
 
 input_boolean:
   bluetooth_alerts:
