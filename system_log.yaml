@@ -1,0 +1,5 @@
+---
+# System Log - https://www.home-assistant.io/integrations/system_log/
+
+fire_event: true
+max_entries: 100
