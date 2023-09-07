@@ -1,0 +1,17 @@
+influxdb:
+  host: !secret influxdb_host
+  port: !secret influxdb_port
+  database: !secret influxdb_database
+  username: !secret influxdb_username
+  password: !secret influxdb_password
+  max_retries: 3
+  api_version: 1
+  ssl: false
+  verify_ssl: false
+  default_measurement: units
+  measurement_attr: unit_of_measurement
+  tags:
+    source: HA
+  tags_attributes:
+    - friendly_name
+    - unit_of_measurement
