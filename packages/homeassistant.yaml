@@ -1,0 +1,22 @@
+---
+group:
+  ignored_unavailable_entities:
+    entities: !include /config/include/ignored_entities.yaml
+
+  add_on_cpu_sensors:
+    entities:
+      - sensor.advanced_ssh_web_terminal_cpu_percent
+
+  add_on_memory_sensors:
+    entities:
+      - sensor.advanced_ssh_web_terminal_memory_percent
+
+input_boolean:
+  startup_pending:
+    name: "Startup Pending"
+    icon: mdi:restart-alert
+    initial: true
+
+sensor:
+  # https://www.home-assistant.io/integrations/websocket_api/
+  - platform: websocket_api

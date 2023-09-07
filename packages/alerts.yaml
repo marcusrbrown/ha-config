@@ -1,0 +1,37 @@
+---
+group:
+  alert_controls:
+    all: true
+    entities:
+      - input_boolean.bluetooth_alerts
+      - input_boolean.hass_alerts
+
+input_boolean:
+  hass_alerts:
+    name: "Hass Alerts"
+    icon: mdi:alert
+
+template:
+  - trigger:
+      - platform: homeassistant
+        event: start
+
+      - platform: event
+        event_type: event_template_reloaded
+
+      - platform: state
+        entity_id: sensor.time
+
+    binary_sensor:
+      - name: "Github Connected"
+        unique_id: github_connected
+        icon: mdi:github
+        device_class: connectivity
+        state: "{{ integration_entities('github')|select('has_value')|list|count > 0 }}"
+
+  - binary_sensor:
+      - name: "Alert Disabled"
+        unique_id: alert_disabled
+        icon: mdi:alert
+        device_class: problem
+        state: "{{ states.alert|selectattr('state','eq','off')|list|count > 0 }}"

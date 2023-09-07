@@ -1,0 +1,39 @@
+---
+# Home Assistant Automations
+#
+# These automations use helpers and templates from the `homeassistant` package.
+# See https://www.home-assistant.io/docs/automation/templating/
+# Based on https://github.com/jazzyisj/home-assistant-config
+
+- id: hass_startup
+  alias: Home Assistant Startup
+  trigger:
+    platform: homeassistant
+    event: start
+  action:
+    - service: system_log.write
+      data:
+        logger: "{{ this.entity_id }}"
+        level: critical
+        message: "Home Assistant started"
+
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.startup_pending
+
+    - service: system_log.write
+      data:
+        logger: "{{ this.entity_id }}"
+        level: critical
+        message: "Home Assistant startup complete"
+
+- id: hass_shutdown
+  alias: Home Assistant Shutdown
+  trigger:
+    platform: homeassistant
+    event: shutdown
+  action:
+    - service: system_log.write
+      data:
+        logger: "{{ this.entity_id }}"
+        level: critical
+        message: "Home Assistant shutdown"
