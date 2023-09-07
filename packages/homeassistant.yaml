@@ -1,4 +1,31 @@
 ---
+homeassistant:
+  customize:
+    alert.unavailable_entities:
+      icon: mdi:alert-circle
+      category: hass
+
+alert:
+  unavailable_entities:
+    name: Unavailable Entities
+    entity_id: binary_sensor.unavailable_entities_alert
+    state: "on"
+    notifiers: log
+    skip_first: false
+    repeat: 999999
+    data:
+      tag: unavailable_entities
+
+  unknown_devices:
+    name: Unknown Devices
+    entity_id: binary_sensor.unknown_device_alert
+    state: "on"
+    notifiers: log
+    skip_first: false
+    repeat: 999999
+    data:
+      tag: unknown_devices
+
 group:
   ignored_unavailable_entities:
     entities: !include /config/include/ignored_entities.yaml
@@ -20,3 +47,77 @@ input_boolean:
 sensor:
   # https://www.home-assistant.io/integrations/websocket_api/
   - platform: websocket_api
+
+  - platform: time_date
+    display_options:
+      - time
+      - date
+      - date_time
+
+template:
+  - binary_sensor:
+      - name: "Unavailable Entities Alert"
+        unique_id: unavailable_entities_alert
+        device_class: problem
+        delay_on: 300
+        state: >
+          {{ states('sensor.unavailable_entities_filtered') | int(-1) > 0
+              and is_state('input_boolean.hass_alerts', 'on')
+              and is_state('input_boolean.startup_pending', 'off')
+          }}
+
+      - name: Unknown Device Alert
+        unique_id: unknown_device_alert
+        device_class: problem
+        delay_on: 60
+        state: >
+          {{ states('sensor.unknown_devices') | int(0) > 0
+            and is_state('input_boolean.hass_alerts', 'on')
+            and is_state('input_boolean.startup_pending', 'off')
+          }}
+
+  - sensor:
+      - name: Unknown Devices
+        unique_id: unknown_devices
+        icon: mdi:devices
+        state: >
+          {{ state_attr(this.entity_id, 'entity_id') | count
+            if state_attr(this.entity_id, 'entity_id') != none else 'None'
+          }}
+        attributes:
+          entity_id: >
+            {{ states.device_tracker
+                | rejectattr('attributes.device_type', 'in', ['bluetooth', 'bluetooth_le', 'location', 'wired', 'wireless'])
+                | map(attribute='entity_id') | select('has_value') | list | sort
+            }}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: event
+        event_type: event_template_reloaded
+      - platform: state
+        entity_id: sensor.time
+    sensor:
+      - name: Unavailable Entities (Filtered)
+        unique_id: unavailable_entities_filtered
+        icon: "{{ iif(states(this.entity_id) | int(-1) > 0, 'mdi:alert-circle', 'mdi:check-circle') }}"
+        state_class: measurement
+        unit_of_measurement: entities
+        state: >
+          {% set entities = state_attr(this.entity_id, 'entity_id') %}
+          {{ entities | count if entities != none else -1 }}
+        attributes:
+          entity_id: >
+            {% set ignore_seconds = 60 %}
+            {% set ignored = state_attr('group.ignored_unavailable_entities', 'entity_id') %}
+            {% set ignore_ts = (now().timestamp() - ignore_seconds) | as_datetime %}
+            {% set entities = states
+                | rejectattr('domain', 'in', ['button', 'device_tracker', 'geo_location', 'group', 'input_text', 'scene'])
+                | rejectattr('entity_id', 'in', integration_entities('browser_mod'))
+                | rejectattr('entity_id', 'in', integration_entities('github'))
+                | rejectattr('entity_id', 'in', integration_entities('hassio'))
+                | rejectattr('last_changed', 'ge', ignore_ts)
+            %}
+            {% set entities = entities | rejectattr('entity_id', 'in', ignored) if ignored != none else entities %}
+            {{ entities | map(attribute='entity_id') | reject('has_value') | list | sort }}
