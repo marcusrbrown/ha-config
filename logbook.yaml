@@ -1,0 +1,32 @@
+---
+# Logbook - https://www.home-assistant.io/components/logbook/
+
+exclude:
+  domains:
+    - alarm_control_panel
+    - alert
+    - automation
+    - binary_sensor
+    - button
+    - calendar
+    - climate
+    - device_tracker
+    - fan
+    - input_boolean
+    - input_button
+    - input_datetime
+    - input_number
+    - input_select
+    - input_text
+    - light
+    - media_player
+    - number
+    - person
+    - schedule
+    - script
+    - select
+    - sensor
+    - switch
+    - timer
+    - weather
+    - zone

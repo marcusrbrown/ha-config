@@ -1,2 +1,37 @@
 ---
-purge_keep_days: 3
+# Recorder - https://www.home-assistant.io/integrations/recorder/
+
+purge_keep_days: 31
+include:
+  domains:
+    - alarm_control_panel
+    - alert
+    - binary_sensor
+    - calendar
+    - climate
+    - cover
+    - device_tracker
+    - fan
+    - input_boolean
+    - input_select
+    - light
+    - lock
+    - person
+    - script
+    - switch
+    - timer
+    - utility_meter
+  entity_globs:
+    - sensor.*_cpu_percent
+    - sensor.*_daily
+    - sensor.*_data_download*
+    - sensor.*_data_upload*
+    - sensor.*_device_temperature
+    - sensor.*_lock_status0
+    - sensor.*_memory_percent
+    - sensor.*_monthly
+    - sensor.*_stats
+    - sensor.*_weekly
+    - sensor.*current_power_use*
+    - sensor.*energy_consumption*
+    - sensor.rbr50*

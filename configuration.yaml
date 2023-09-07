@@ -15,7 +15,11 @@ scene yaml: !include_dir_merge_list scenes
 template: !include_dir_merge_list templates
 
 panel_custom: !include panel_custom.yaml
+
+logbook: !include logbook.yaml
+logger: !include logger.yaml
 recorder: !include recorder.yaml
+system_log: !include system_log.yaml
 
 wake_on_lan:
 
