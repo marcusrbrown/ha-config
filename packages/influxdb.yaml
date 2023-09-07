@@ -1,3 +1,10 @@
+---
+# InfluxDB - https://www.home-assistant.io/integrations/influxdb/
+#
+# Based on:
+# https://www.derekseaman.com/2023/04/home-assistant-installing-influxdb-lxc.html
+# https://www.derekseaman.com/2023/04/home-assistant-influxdb-data-management-lxc.html
+
 influxdb:
   host: !secret influxdb_host
   port: !secret influxdb_port
@@ -15,3 +22,37 @@ influxdb:
   tags_attributes:
     - friendly_name
     - unit_of_measurement
+  exclude:
+    domains:
+      - automation
+      - camera
+      - device_tracker
+      - fan
+      - lights
+      - media_player
+      - scene
+      - script
+      - update
+  ignore_attributes:
+    - assumed_state
+    - attribution
+    - device_class
+    - device_file
+    - editable
+    - effect_list
+    - event
+    - icon
+    - ip_address
+    - marker_type
+    - mode
+    - options
+    - preset_modes
+    - source
+    - state_open
+    - state_closed
+    - stateExtra
+    - state_class
+    - step
+    - supported_color_modes
+    - supported_features
+    - writable
