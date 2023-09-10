@@ -1,0 +1,111 @@
+---
+# Network - Wired and wireless network devices, sensors, and services.
+
+homeassistant:
+  customize:
+    alert.wan_offline:
+      icon: mdi:wan
+      category: network
+
+alert:
+  wan_offline:
+    name: Intenet Offline
+    message: "The internet is offline!"
+    done_message: clear_notification
+    entity_id: binary_sensor.wan_offline_alert
+    state: "on"
+    repeat: 3600
+    # notifiers: jason
+    notifiers: log
+    data:
+      tag: wan_offline
+      group: System
+      channel: Alert
+      importance: max
+      ttl: 0
+      priority: high
+      visibility: public
+      notification_icon: mdi:wan
+      # icon_url: !secret WAN_DOWN_ICON
+      # ledColor: !secret SEVERE_COLOR
+      # color: !secret SEVERE_COLOR
+      # vibrationPattern: !secret ALERT_VIBRATION
+      clickAction: /hass
+      actions:
+        - title: "Pause"
+          action: pause_alert_wan_offline
+
+        - title: "Reboot Router"
+          action: reboot_router
+
+binary_sensor:
+  - platform: ping
+    name: WAN Ping
+    host: 1.1.1.1
+    count: 5
+    scan_interval: 60
+
+input_boolean:
+  network_alerts:
+    name: Network Alerts
+    icon: mdi:alert
+
+template:
+  - binary_sensor:
+      - name: WAN
+        unique_id: wan
+        icon: mdi:wan
+        device_class: connectivity
+        state: >
+          {{ is_state('binary_sensor.rbr50_gateway_wan_status', 'on')
+              or is_state('binary_sensor.wan_ping', 'on')
+          }}
+
+      - name: WAN Offline Alert
+        unique_id: wan_offline_alert
+        icon: mdi:wan
+        device_class: problem
+        delay_on: 60
+        state: >
+          {{ is_state('binary_sensor.wan', 'off')
+              and is_state('input_boolean.network_alerts', 'on')
+          }}
+        availability: "{{ has_value('binary_sensor.wan') }}"
+
+  - sensor:
+      - name: Network Status
+        unique_id: network_status
+        icon: mdi:home-assistant
+        state: >
+          {% if is_state('binary_sensor.wan','off') %} critical
+            # TODO: Add other network checks here
+          {% else %} ok
+          {% endif %}
+
+      - name: Wired Network Devices
+        unique_id: wired_network_devices
+        icon: mdi:router-network
+        state: >
+          {{ state_attr(this.entity_id, 'entity_id') | count
+              if state_attr(this.entity_id, 'entity_id') != none else none }}
+        attributes:
+          entity_id: >
+            {{ states.device_tracker
+                | selectattr('attributes.device_type', 'defined')
+                | selectattr('attributes.device_type', 'eq', 'wired')
+                | map(attribute='entity_id') | list | sort
+            }}
+
+      - name: Wireless Network Devices
+        unique_id: wireless_network_devices
+        icon: mdi:access-point-network
+        state: >
+          {{ state_attr(this.entity_id, 'entity_id') | count
+              if state_attr(this.entity_id,'entity_id') != none else none }}
+        attributes:
+          entity_id: >
+            {{ states.device_tracker
+                | selectattr('attributes.device_type', 'defined')
+                | selectattr('attributes.device_type', 'eq', 'wireless')
+                | map(attribute='entity_id') | list | sort
+            }}
