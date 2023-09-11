@@ -1,0 +1,8 @@
+---
+# History - https://home-assistant.io/components/history/
+
+exclude:
+  entities:
+    - sensor.date
+    - sensor.date_time
+    - sensor.time
