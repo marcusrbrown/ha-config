@@ -45,11 +45,6 @@ binary_sensor:
     count: 5
     scan_interval: 60
 
-input_boolean:
-  network_alerts:
-    name: Network Alerts
-    icon: mdi:alert
-
 template:
   - binary_sensor:
       - name: WAN
@@ -60,17 +55,6 @@ template:
           {{ is_state('binary_sensor.rbr50_gateway_wan_status', 'on')
               or is_state('binary_sensor.wan_ping', 'on')
           }}
-
-      - name: WAN Offline Alert
-        unique_id: wan_offline_alert
-        icon: mdi:wan
-        device_class: problem
-        delay_on: 60
-        state: >
-          {{ is_state('binary_sensor.wan', 'off')
-              and is_state('input_boolean.network_alerts', 'on')
-          }}
-        availability: "{{ has_value('binary_sensor.wan') }}"
 
   - sensor:
       - name: Network Status

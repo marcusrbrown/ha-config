@@ -27,16 +27,29 @@ alert:
       tag: unknown_devices
 
 group:
-  ignored_unavailable_entities:
-    entities: !include /config/include/ignored_entities.yaml
-
   add_on_cpu_sensors:
     entities:
       - sensor.advanced_ssh_web_terminal_cpu_percent
+      - sensor.esphome_cpu_percent
+      - sensor.spotify_connect_cpu_percent
+      - sensor.vlc_cpu_percent
+      - sensor.z_wave_js_cpu_percent
 
   add_on_memory_sensors:
     entities:
       - sensor.advanced_ssh_web_terminal_memory_percent
+      - sensor.esphome_memory_percent
+      - sensor.spotify_connect_memory_percent
+      - sensor.vlc_memory_percent
+      - sensor.z_wave_js_memory_percent
+
+  ignored_unavailable_entities:
+    entities: !include /config/include/ignored_entities.yaml
+
+  integration_connected_sensors:
+    all: true
+    entities:
+      - binary_sensor.github_connected
 
 input_boolean:
   startup_pending:
@@ -55,27 +68,6 @@ sensor:
       - date_time
 
 template:
-  - binary_sensor:
-      - name: "Unavailable Entities Alert"
-        unique_id: unavailable_entities_alert
-        device_class: problem
-        delay_on: 300
-        state: >
-          {{ states('sensor.unavailable_entities_filtered') | int(-1) > 0
-              and is_state('input_boolean.hass_alerts', 'on')
-              and is_state('input_boolean.startup_pending', 'off')
-          }}
-
-      - name: Unknown Device Alert
-        unique_id: unknown_device_alert
-        device_class: problem
-        delay_on: 60
-        state: >
-          {{ states('sensor.unknown_devices') | int(0) > 0
-            and is_state('input_boolean.hass_alerts', 'on')
-            and is_state('input_boolean.startup_pending', 'off')
-          }}
-
   - sensor:
       - name: Unknown Devices
         unique_id: unknown_devices

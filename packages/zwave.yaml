@@ -45,11 +45,11 @@ alert:
     name: "ZWave Device"
     title: "ZWave Device Offline"
     message: |
-      {%- set sensors = expand(state_attr('binary_sensor.offline_zwave_devices','entity_id')) %}
+      {%- set sensors = expand(state_attr('binary_sensor.offline_zwave_devices', 'entity_id')) %}
       {%- for item in sensors %}
         {%- if item.name is defined %}
           {%- if not loop.first -%}<br/>{%- endif %}
-          {{- item.name|replace(': Ping','')|title }}
+          {{- item.name | replace(': Ping','') | title }}
         {%- else %} Unknown Device
         {%- endif %}
       {%- endfor %}
@@ -94,29 +94,12 @@ template:
         icon: mdi:z-wave
         device_class: connectivity
         state: >
-          {{ (is_state('binary_sensor.z_wave_js_running','on')
-                or is_state('binary_sensor.z_wave_js_to_mqtt_running','on'))
-              and integration_entities('zwave_js')|select('has_value')|list|count > 0 }}
+          {{ (is_state('binary_sensor.z_wave_js_running', 'on')
+                or is_state('binary_sensor.z_wave_js_to_mqtt_running', 'on'))
+              and integration_entities('zwave_js') | select('has_value') | list | count > 0
+          }}
 
   - binary_sensor:
-      - name: "ZWave Network Alert"
-        unique_id: zwave_network_alert
-        icon: mdi:z-wave
-        device_class: problem
-        delay_on: 300
-        state: >
-          {{ is_state('binary_sensor.zwave_network','off')
-              and is_state('input_boolean.hass_alerts','on') }}
-
-      - name: "ZWave Device Alert"
-        unique_id: zwave_device_alert
-        icon: mdi:z-wave
-        device_class: problem
-        delay_on: 60
-        state: >
-          {{ is_state('binary_sensor.offline_zwave_devices','on')
-              and is_state('input_boolean.hass_alerts','on') }}
-
       - name: "Offline ZWave Devices"
         unique_id: offline_zwave_devices
         icon: mdi:z-wave
@@ -127,17 +110,18 @@ template:
         attributes:
           entity_id: >
             {{ expand(integration_entities('zwave_js'))
-                |selectattr('entity_id','search','node_status')
-                |selectattr('state','in',['dead','unavailable','unknown'])
-                |map(attribute="object_id")
-                |map('regex_replace', find='(.*)_node_status', replace='button.\\1_ping', ignorecase=False)
-                |list|sort }}
+                | selectattr('entity_id', 'search', 'node_status')
+                | selectattr('state', 'in', ['dead', 'unavailable', 'unknown'])
+                | map(attribute="object_id")
+                | map('regex_replace', find='(.*)_node_status', replace='button.\\1_ping', ignorecase=False)
+                | list | sort
+            }}
 
   - sensor:
       - name: "ZWave Status"
         unique_id: zwave_status
         icon: mdi:z-wave
         state: >
-          {% if is_state('binary_sensor.zwave_network','off') %} critical
-          {% else %} {{ iif(is_state('binary_sensor.offline_zwave_devices','on'),'warning','ok') }}
+          {% if is_state('binary_sensor.zwave_network', 'off') %} critical
+          {% else %} {{ iif(is_state('binary_sensor.offline_zwave_devices', 'on'), 'warning', 'ok') }}
           {% endif %}

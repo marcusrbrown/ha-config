@@ -54,11 +54,6 @@ ble_monitor:
       track_device: true
   discovery: false
 
-input_boolean:
-  bluetooth_alerts:
-    name: Bluetooth Alerts
-    icon: mdi:alert
-
 alert:
   bluetooth_offline:
     name: Bluetooth Offline
@@ -84,27 +79,6 @@ alert:
           title: Reboot
 
 template:
-  - binary_sensor:
-      - name: Bluetooth Offline Alert
-        unique_id: bluetooth_offline_alert
-        icon: mdi:bluetooth
-        device_class: problem
-        delay_on: 60
-        state: >
-          {{ expand(state_attr('sensor.bluetooth_devices','entity_id'))
-                |selectattr('state','eq','home')|list|count == 0
-              and expand(state_attr('sensor.bluetooth_le_devices','entity_id'))
-                |selectattr('state','eq','home')|list|count == 0 }}
-
-      - name: Unknown Bluetooth Device Alert
-        unique_id: unknown_bluetooth_device_alert
-        device_class: problem
-        delay_on: 60
-        state: >
-          {{ states('sensor.unknown_bluetooth_devices')|int(0) > 0
-              and is_state('input_boolean.bluetooth_alerts','on')
-              and is_state('input_boolean.startup_pending','off') }}
-
   - sensor:
       - name: Bluetooth Devices
         unique_id: bluetooth_devices
