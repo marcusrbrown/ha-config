@@ -1,5 +1,14 @@
 {
     "files.associations": {
         "*.yaml": "home-assistant"
-    }
+    },
+
+    "search.exclude": {
+      "**/.cloud": true,
+      "**/__pycache__/**": true,
+      "**/bower_components": true,
+      "**/custom_components": true,
+      "**/node_modules": true,
+      "**/*.code-search": true,
+    },
 }
