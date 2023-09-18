@@ -11,12 +11,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   yamllint:
     name: 🧹 YAML Lint
     runs-on: ubuntu-latest
     steps:
-      - name: ⤵️ Check out configuration from GitHub
+      - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@v4.0.0
       - name: 🚀 Run yamllint
         uses: frenck/action-yamllint@v1.4.1
