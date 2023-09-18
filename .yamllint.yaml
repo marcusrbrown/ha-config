@@ -1,0 +1,11 @@
+---
+extends: default
+
+ignore: |
+  blueprints/
+  custom_components/
+  esphome/*/
+  www/
+
+rules:
+  line-length: disable

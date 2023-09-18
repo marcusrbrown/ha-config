@@ -1,0 +1,18 @@
+---
+_extends: .github:common-settings.yaml
+
+repository:
+  name: ha-config
+  description: My Home Assistant configuration
+  topics: home-assistant-config, home-assistant
+
+branches:
+  - name: main
+    protection:
+      required_status_checks:
+        strict: true
+        contexts: ['🧹 YAML Lint', '🧹 Remark Lint']
+      enforce_admins: true
+      required_pull_request_reviews: null
+      restrictions: null
+      required_linear_history: true

@@ -1,0 +1,37 @@
+---
+name: CI
+
+'on':
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  yamllint:
+    name: 🧹 YAML Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v4.0.0
+      - name: 🚀 Run yamllint
+        uses: frenck/action-yamllint@v1.4.1
+
+  remarklint:
+    name: 🧹 Remark Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v4
+      - name: 🚀 Run Remark Lint
+        uses: 'docker://pipelinecomponents/remark-lint:latest'
+        continue-on-error: true
+        with:
+          args: 'remark --no-stdout --color --frail --use preset-lint-recommended .'

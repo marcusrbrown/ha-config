@@ -1,0 +1,33 @@
+# Update repository settings to match the definitions in .github/settings.yml.
+---
+name: Update Repository Settings
+
+'on':
+  push:
+    branches: [main]
+    paths:
+      - '.github/settings.yml'
+      - '.github/workflows/update-repo-settings.yaml'
+  schedule:
+    - cron: '0 3 * * *' # every day at 03:00 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  update-repo-settings:
+    name: Update Repository Settings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Workflow Access Token
+        id: get-workflow-access-token
+        uses: peter-murray/workflow-application-token-action@8e1ba3bf1619726336414f1014e37f17fbadf1db # v2.1.0
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          permissions: 'administration:write, contents:read, issues:write'
+
+      - name: Update Repository Settings (${{ github.repository_owner }}/.github)
+        uses: elstudio/actions-settings@v3-beta
+        env:
+          GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
