@@ -1,0 +1,17 @@
+---
+arrowParens: avoid
+bracketSpacing: false
+overrides:
+  - files:
+      - "*.json"
+    options:
+      singleQuote: false
+      trailingComma: none
+  - files:
+      - ".vscode/*.json"
+    options:
+      tabWidth: 4
+printWidth: 120
+semi: false
+singleQuote: true
+tabWidth: 2
