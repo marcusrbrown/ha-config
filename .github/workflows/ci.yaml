@@ -7,6 +7,10 @@ name: CI
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   yamllint:
     name: 🧹 YAML Lint

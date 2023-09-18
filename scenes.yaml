@@ -3,10 +3,10 @@
   entities:
     climate.sensi_0d5197_thermostat:
       hvac_modes:
-      - 'off'
-      - heat
-      - cool
-      - heat_cool
+        - 'off'
+        - heat
+        - cool
+        - heat_cool
       min_temp: 45
       max_temp: 99
       current_temperature: 77

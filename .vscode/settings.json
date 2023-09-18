@@ -1,6 +1,9 @@
 {
     "files.associations": {
-        "*.yaml": "home-assistant"
+        "*.yaml": "home-assistant",
+        "**/.github/workflows/*.yaml": "yaml",
+        ".prettierrc.yaml": "yaml",
+        ".yamllint*": "yaml",
     },
 
     "search.exclude": {
