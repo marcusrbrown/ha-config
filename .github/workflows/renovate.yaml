@@ -1,0 +1,65 @@
+---
+# Renovate this repository if this workflow file or the Renovate configuration file is changed.
+name: Renovate
+
+'on':
+  issues:
+    types: [edited]
+  pull_request:
+    types: [edited]
+  push:
+    branches: ['**']
+    paths:
+      - '.github/workflows/renovate.yaml'
+      - '.github/renovate.json5?'
+  workflow_dispatch:
+    inputs:
+      print_config:
+        description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
+        required: false
+        type: boolean
+        default: false
+
+permissions: {}
+
+jobs:
+  should-renovate:
+    name: Check if Renovate should run
+    if: >-
+      (github.event_name != 'issues' && github.event_name != 'pull_request') ||
+      (
+        contains(join(github.event.*.body, ''), '- [x] <!-- approve-all-pending-prs -->') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- approve-branch=') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- approvePr-branch=') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- create-all-rate-limited-prs -->') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- manual job -->') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- other-branch=') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- rebase-all-open-prs -->') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- rebase-branch=') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- rebase-check -->') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- recreate-branch=') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- retry-branch=') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- unlimit-branch=') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- unschedule-branch=')
+      )
+    outputs:
+      renovate: ${{ steps.create-output.outputs.renovate }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: create-output
+        run: echo "renovate=true" >> $GITHUB_OUTPUT
+
+  renovate:
+    if: needs.should-renovate.outputs.renovate == 'true'
+    name: Renovate
+    needs: should-renovate
+    uses: bfra-me/renovate-config/.github/workflows/renovate.yaml@f2bb7ac82c5becc73f89a91b5747a674ee992cd9 # v1.24.0
+    with:
+      autodiscover: false
+      dry_run: false
+      print_config: ${{ inputs.print_config || false }}
+      renovate_git_author: '137683033+mrbro-bot[bot]@users.noreply.github.com'
+      renovate_username: 'mrbro-bot[bot]'
+    secrets:
+      APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
+      APPLICATION_PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
