@@ -10,10 +10,10 @@ homeassistant:
 alert:
   wan_offline:
     name: Intenet Offline
-    message: "The internet is offline!"
+    message: 'The internet is offline!'
     done_message: clear_notification
     entity_id: binary_sensor.wan_offline_alert
-    state: "on"
+    state: 'on'
     repeat: 3600
     # notifiers: jason
     notifiers: log
@@ -32,10 +32,10 @@ alert:
       # vibrationPattern: !secret ALERT_VIBRATION
       clickAction: /hass
       actions:
-        - title: "Pause"
+        - title: 'Pause'
           action: pause_alert_wan_offline
 
-        - title: "Reboot Router"
+        - title: 'Reboot Router'
           action: reboot_router
 
 binary_sensor:

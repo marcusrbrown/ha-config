@@ -1,6 +1,10 @@
 .cloud/
 .storage/
+blueprints/
 custom_components/
 deps/
 esphome/
 www/
+automations.yaml
+scenes.yaml
+scripts.yaml

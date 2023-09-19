@@ -12,7 +12,7 @@ input_boolean:
     name: Bluetooth Alerts
     icon: mdi:alert
   hass_alerts:
-    name: "Hass Alerts"
+    name: 'Hass Alerts'
     icon: mdi:alert
   network_alerts:
     name: Network Alerts
@@ -20,7 +20,7 @@ input_boolean:
 
 template:
   - binary_sensor:
-      - name: "Alert Disabled"
+      - name: 'Alert Disabled'
         unique_id: alert_disabled
         icon: mdi:alert
         device_class: problem
@@ -38,7 +38,7 @@ template:
                 | selectattr('state', 'eq', 'home') | list | count == 0
           }}
 
-      - name: "Unavailable Entities Alert"
+      - name: 'Unavailable Entities Alert'
         unique_id: unavailable_entities_alert
         device_class: problem
         delay_on: 300
@@ -79,7 +79,7 @@ template:
           }}
         availability: "{{ has_value('binary_sensor.wan') }}"
 
-      - name: "ZWave Network Alert"
+      - name: 'ZWave Network Alert'
         unique_id: zwave_network_alert
         icon: mdi:z-wave
         device_class: problem
@@ -89,7 +89,7 @@ template:
               and is_state('input_boolean.hass_alerts', 'on')
           }}
 
-      - name: "ZWave Device Alert"
+      - name: 'ZWave Device Alert'
         unique_id: zwave_device_alert
         icon: mdi:z-wave
         device_class: problem
@@ -110,7 +110,7 @@ template:
         entity_id: sensor.time
 
     binary_sensor:
-      - name: "Github Connected"
+      - name: 'Github Connected'
         unique_id: github_connected
         icon: mdi:github
         device_class: connectivity
