@@ -3,15 +3,16 @@
         "*.yaml": "home-assistant",
         "**/.github/workflows/*.yaml": "yaml",
         ".prettierrc.yaml": "yaml",
-        ".yamllint*": "yaml",
+        ".yamllint*": "yaml"
     },
 
     "search.exclude": {
-      "**/.cloud": true,
-      "**/__pycache__/**": true,
-      "**/bower_components": true,
-      "**/custom_components": true,
-      "**/node_modules": true,
-      "**/*.code-search": true,
-    },
+        "**/.cloud": true,
+        "**/__pycache__/**": true,
+        "**/bower_components": true,
+        "**/custom_components": true,
+        "**/node_modules": true,
+        "**/www/community": true,
+        "**/*.code-search": true
+    }
 }

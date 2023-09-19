@@ -13,18 +13,18 @@
   action:
     - service: system_log.write
       data:
-        logger: "{{ this.entity_id }}"
+        logger: '{{ this.entity_id }}'
         level: critical
-        message: "Home Assistant started"
+        message: 'Home Assistant started'
 
     - service: input_boolean.turn_off
       entity_id: input_boolean.startup_pending
 
     - service: system_log.write
       data:
-        logger: "{{ this.entity_id }}"
+        logger: '{{ this.entity_id }}'
         level: critical
-        message: "Home Assistant startup complete"
+        message: 'Home Assistant startup complete'
 
 - id: hass_shutdown
   alias: Home Assistant Shutdown
@@ -34,6 +34,6 @@
   action:
     - service: system_log.write
       data:
-        logger: "{{ this.entity_id }}"
+        logger: '{{ this.entity_id }}'
         level: critical
-        message: "Home Assistant shutdown"
+        message: 'Home Assistant shutdown'

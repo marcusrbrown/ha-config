@@ -9,7 +9,7 @@ alert:
   unavailable_entities:
     name: Unavailable Entities
     entity_id: binary_sensor.unavailable_entities_alert
-    state: "on"
+    state: 'on'
     notifiers: log
     skip_first: false
     repeat: 999999
@@ -19,7 +19,7 @@ alert:
   unknown_devices:
     name: Unknown Devices
     entity_id: binary_sensor.unknown_device_alert
-    state: "on"
+    state: 'on'
     notifiers: log
     skip_first: false
     repeat: 999999
@@ -53,7 +53,7 @@ group:
 
 input_boolean:
   startup_pending:
-    name: "Startup Pending"
+    name: 'Startup Pending'
     icon: mdi:restart-alert
     initial: true
 
