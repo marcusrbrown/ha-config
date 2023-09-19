@@ -1,0 +1,6 @@
+.cloud/
+.storage/
+custom_components/
+deps/
+esphome/
+www/

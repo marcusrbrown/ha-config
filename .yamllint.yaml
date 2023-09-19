@@ -4,8 +4,12 @@ extends: default
 ignore: |
   blueprints/
   custom_components/
-  esphome/*/
+  esphome/
   www/
+  automations.yaml
+  scenes.yaml
+  scripts.yaml
 
 rules:
+  comments: disable
   line-length: disable

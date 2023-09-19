@@ -1,5 +1,6 @@
+---
 - sensor:
-    - name: "Unavailable Entities"
+    - name: 'Unavailable Entities'
       unique_id: unavailable_entities
       icon: "{{ iif(states(this.entity_id)|int(-1) > 0,'mdi:alert-circle','mdi:check-circle') }}"
       state_class: measurement

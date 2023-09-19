@@ -12,6 +12,7 @@
       "**/bower_components": true,
       "**/custom_components": true,
       "**/node_modules": true,
+      "**/www/community": true,
       "**/*.code-search": true,
     },
 }

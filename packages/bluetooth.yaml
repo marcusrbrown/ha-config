@@ -31,27 +31,8 @@ homeassistant:
 ble_monitor:
   active_scan: true
   bt_auto_restart: true
-  bt_interface:
-    - !secret BT_INTERFACE_FEE98E
-  devices:
-    - mac: !secret BLE_TRACKER_DEVICE_0345BA_MAC
-      name: !secret BLE_TRACKER_DEVICE_0345BA_NAME
-      track_device: true
-    - mac: !secret BLE_TRACKER_DEVICE_04F633_MAC
-      name: !secret BLE_TRACKER_DEVICE_04F633_NAME
-      track_device: true
-    - mac: !secret BLE_TRACKER_DEVICE_6AF138_MAC
-      name: !secret BLE_TRACKER_DEVICE_6AF138_NAME
-      track_device: true
-    - mac: !secret BLE_TRACKER_DEVICE_724388_MAC
-      name: !secret BLE_TRACKER_DEVICE_724388_NAME
-      track_device: true
-    - mac: !secret BLE_TRACKER_DEVICE_B859FE_MAC
-      name: !secret BLE_TRACKER_DEVICE_B859FE_NAME
-      track_device: true
-    - mac: !secret BLE_TRACKER_DEVICE_ECB448_MAC
-      name: !secret BLE_TRACKER_DEVICE_ECB448_NAME
-      track_device: true
+  bt_interface: !secret ble_monitor_bt_interfaces
+  devices: !secret ble_monitor_devices
   discovery: false
 
 alert:
@@ -61,9 +42,9 @@ alert:
     message: Home Assistant Bluetooth is not running.
     done_message: clear_notification
     entity_id: binary_sensor.bluetooth_offline_alert
-    state: "on"
+    state: 'on'
     repeat: 3600
-    #notifiers:
+    # notifiers:
     data:
       tag: bluetooth_offline
       group: System
@@ -100,4 +81,4 @@ template:
           {{ c|count if c != none else none }}
         attributes:
           entity_id: >
-            {{ states.device_tracker|selectattr('attributes.device_type','eq','bluetooth_le')|map(attribute='entity_id')|list }}
+            {{ states.device_tracker | selectattr('attributes.device_type','eq','bluetooth_le')|map(attribute='entity_id')|list }}
