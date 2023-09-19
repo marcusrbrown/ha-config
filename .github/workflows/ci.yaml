@@ -29,9 +29,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Check out code from GitHub
-        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
       - name: 🚀 Run Remark Lint
         uses: 'docker://pipelinecomponents/remark-lint:latest'
         continue-on-error: true
         with:
           args: 'remark --no-stdout --color --frail --use preset-lint-recommended .'
+
+  prettier:
+    name: 🧹 Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Checkout Branch
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+        with:
+          ref: ${{ github.head_ref }}
+      - name: 💅🏽 Run Prettier
+        uses: creyD/prettier_action@31355f8eef017f8aeba2e0bc09d8502b13dbbad1 # v4.3
+        env:
+          PRETTIER_VERSION: 3.0.3 # renovate: datasource=npm depName=prettier
+        with:
+          prettier_options: --check .
+          prettier_version: ${{ env.PRETTIER_VERSION }}
