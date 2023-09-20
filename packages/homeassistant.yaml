@@ -44,7 +44,7 @@ group:
       - sensor.z_wave_js_memory_percent
 
   ignored_unavailable_entities:
-    entities: !include include/ignored_entities.yaml
+    entities: !include ../include/ignored_entities.yaml
 
   integration_connected_sensors:
     all: true
