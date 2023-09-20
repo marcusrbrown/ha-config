@@ -51,3 +51,30 @@ jobs:
         with:
           prettier_options: --check .
           prettier_version: ${{ env.PRETTIER_VERSION }}
+
+  ha_version:
+    name: 🔩 Get HA Version
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.ha_version.outputs.value }}
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - name: 📦 Get Installed Version from `.HA_VERSION`
+        id: ha_version
+        run: |
+          HA_VERSION=$(<.HA_VERSION)
+          echo '{value}={$HA_VERSION}' >> $GITHUB_OUTPUT
+
+  check-home-assistant-config:
+    name: 🧪 Check Home Assistant Config
+    needs: [yamllint, remarklint, prettier, ha_version]
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - name: 🚀 Run Home Assistant Config Check
+        uses: frenck/action-home-assistant@941d5d917f4c1c7a7e7d4087526daf90d53f4437 # v1.4.1
+        with:
+          secrets: include
+          version: ${{ needs.ha_version.outputs.value }}

@@ -6,6 +6,7 @@ home-assistant.log*
 known_devices.yaml
 pyozw.sqlite
 secrets.yaml
+!include/secrets.yaml
 *.db-shm
 *.db-wal
 *.db
