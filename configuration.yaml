@@ -17,7 +17,6 @@ template: !include_dir_merge_list templates
 
 panel_custom: !include panel_custom.yaml
 
-history: !include history.yaml
 logbook: !include logbook.yaml
 logger: !include logger.yaml
 recorder: !include recorder.yaml
