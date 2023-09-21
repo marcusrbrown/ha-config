@@ -3,10 +3,13 @@
 
 purge_keep_days: 31
 exclude:
+  domains:
+    - group
   entities:
     - sensor.date
     - sensor.date_time
     - sensor.time
+    - sun.sun
 
 include:
   domains:
@@ -19,7 +22,6 @@ include:
     - cover
     - device_tracker
     - fan
-    - group
     - input_boolean
     - input_number
     - input_select
