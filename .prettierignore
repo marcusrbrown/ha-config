@@ -4,6 +4,7 @@ blueprints/
 custom_components/
 deps/
 esphome/
+pymyq/
 www/
 automations.yaml
 scenes.yaml

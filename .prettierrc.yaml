@@ -3,12 +3,7 @@ arrowParens: avoid
 bracketSpacing: false
 overrides:
   - files:
-      - '*.json'
-    options:
-      singleQuote: false
-      trailingComma: none
-  - files:
-      - '.vscode/*.json'
+      - '.vscode/**/.json'
     options:
       tabWidth: 4
 printWidth: 120
