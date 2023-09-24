@@ -5,6 +5,7 @@ ignore: |
   blueprints/
   custom_components/
   esphome/
+  pymyq/
   www/
   automations.yaml
   scenes.yaml
