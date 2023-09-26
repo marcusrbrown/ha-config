@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Renovate
-        uses: bfra-me/renovate-action@bf446cb6b9665d2fceb4f2d533ae1aeb67636ef5 # v2.1.12
+        uses: bfra-me/renovate-action@7a983b2b3d4a22a3d96d6e92c26a1ea997e8d2d1 # v2.1.13
         with:
           print_config: ${{ inputs.print_config || 'false' }}
           renovate_app_id: ${{ secrets.APPLICATION_ID }}
