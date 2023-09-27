@@ -13,6 +13,12 @@ exclude:
     - sensor.date
     - sensor.date_time
     - sensor.time
+  entity_globs:
+    - sensor.octoprint_*
+    - sensor.pi_hole_*
+    - sensor.speedtest_*
+    - sensor.*uptime*
+    - sensor.*random*
 
 include:
   domains:
