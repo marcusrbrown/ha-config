@@ -8,7 +8,7 @@ name: Renovate
   pull_request:
     types: [edited]
   push:
-    branches: ['**']
+    branches: [main]
     paths:
       - '.github/workflows/renovate.yaml'
       - '.github/renovate.json5?'
@@ -53,13 +53,12 @@ jobs:
     if: needs.should-renovate.outputs.renovate == 'true'
     name: Renovate
     needs: should-renovate
-    uses: bfra-me/renovate-config/.github/workflows/renovate.yaml@f2bb7ac82c5becc73f89a91b5747a674ee992cd9 # v1.24.0
-    with:
-      autodiscover: false
-      dry_run: false
-      print_config: ${{ inputs.print_config || false }}
-      renovate_git_author: '137683033+mrbro-bot[bot]@users.noreply.github.com'
-      renovate_username: 'mrbro-bot[bot]'
-    secrets:
-      APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
-      APPLICATION_PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Renovate
+        uses: bfra-me/renovate-action@135c861c792de484e266a0b38dc067b46a568900 # v2.1.18
+        with:
+          print_config: ${{ inputs.print_config || 'false' }}
+          renovate_app_id: ${{ secrets.APPLICATION_ID }}
+          renovate_app_pem: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          renovate_app_slug: 'mrbro-bot'
