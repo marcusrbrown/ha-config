@@ -1,3 +1,0 @@
-[submodule "esphome"]
-	path = esphome
-	url = https://github.com/marcusrbrown/esphome.life
