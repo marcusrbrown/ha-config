@@ -3,7 +3,6 @@
 blueprints/
 custom_components/
 deps/
-pymyq/
 www/
 automations.yaml
 scenes.yaml
