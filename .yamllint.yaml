@@ -4,7 +4,6 @@ extends: default
 ignore: |
   blueprints/
   custom_components/
-  pymyq/
   www/
   automations.yaml
   scenes.yaml

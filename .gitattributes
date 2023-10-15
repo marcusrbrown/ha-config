@@ -1,6 +1,5 @@
 * text=auto eol=lf
 
 /custom_components/** linguist-vendored
-/pymyq/**             linguist-vendored
 /www/**               linguist-vendored
 .HA_VERSION           linguist-generated
