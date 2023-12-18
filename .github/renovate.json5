@@ -1,4 +1,4 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: ['github>marcusrbrown/renovate-config#v1.14.0', 'github>bfra-me/renovate-config:automerge/prForCI#v2.2.4'],
+  extends: ['github>marcusrbrown/renovate-config#v1.14.1', 'github>bfra-me/renovate-config:automerge/prForCI#v2.2.4'],
 }
