@@ -14,6 +14,7 @@ from .bparasite import parse_bparasite
 from .bthome import parse_bthome
 from .const import JAALEE_TYPES, TILT_TYPES
 from .govee import parse_govee
+from .grundfos import parse_grundfos
 from .helpers import to_mac, to_unformatted_mac
 from .hhcc import parse_hhcc
 from .holyiot import parse_holyiot
@@ -136,10 +137,16 @@ class BleParser:
                     service_class_uuid128 = adstruct[2:]
                 elif adstuct_type == 0x08:
                     # AD type 'shortened local name'
-                    shortened_local_name = adstruct[2:].decode("utf-8")
+                    try:
+                        shortened_local_name = adstruct[2:].decode("utf-8")
+                    except UnicodeDecodeError:
+                        shortened_local_name = ""
                 elif adstuct_type == 0x09:
                     # AD type 'complete local name'
-                    complete_local_name = adstruct[2:].decode("utf-8")
+                    try:
+                        complete_local_name = adstruct[2:].decode("utf-8")
+                    except UnicodeDecodeError:
+                        complete_local_name = ""
                 elif adstuct_type == 0x16 and adstuct_size > 4:
                     # AD type 'Service Data - 16-bit UUID'
                     service_data_list.append(adstruct)
@@ -394,6 +401,10 @@ class BleParser:
                     elif comp_id == 0xEC88 and data_len in [0x09, 0x0A, 0x0C, 0x22, 0x24, 0x25]:
                         # Govee H5051/H5071/H5072/H5075/H5074
                         sensor_data = parse_govee(self, man_spec_data, service_class_uuid16, local_name, mac, rssi)
+                        break
+                    elif comp_id == 0xF214 and data_len == 0x16:
+                        # Grundfos
+                        sensor_data = parse_grundfos(self, man_spec_data, mac, rssi)
                         break
                     elif comp_id == 0xFFFF and data_len == 0x1E:
                         # Kegtron

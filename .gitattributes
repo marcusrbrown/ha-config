@@ -2,4 +2,5 @@
 
 /custom_components/** linguist-vendored
 /www/**               linguist-vendored
+/www/community/**     binary linguist-vendored
 .HA_VERSION           linguist-generated
