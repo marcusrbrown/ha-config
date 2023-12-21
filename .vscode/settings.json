@@ -3,6 +3,7 @@
     "*.yaml": "home-assistant",
     "*.yml": "home-assistant",
     "**/.github/workflows/*.yaml": "yaml",
+    "**/.github/settings.yml": "yaml",
     ".prettierrc.yaml": "yaml",
     ".yamllint*": "yaml"
   },
