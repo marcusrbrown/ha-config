@@ -1,6 +1,29 @@
-* text=auto eol=lf
+* text=auto
 
-/custom_components/** linguist-vendored
-/www/**               linguist-vendored
-/www/community/**     binary linguist-vendored
-.HA_VERSION           linguist-generated
+*.gif                         binary
+*.gz                          binary
+*.jpg                         binary
+*.png                         binary
+
+*.json                        text
+*.json5                       text
+*.md                          text diff=markdown
+*.py                          text diff=python
+*.yaml                        text
+*.yml                         text
+
+.editorconfig                 text
+.gitattributes                text export-ignore
+.gitignore                    text export-ignore
+.prettierignore               text
+
+.vscode/*.json                linguist-language=JSON-with-Comments
+.vscode/*.code-snippets       text linguist-language=JSON-with-Comments
+/custom_components/**         linguist-vendored
+/custom_components/**/*.js    binary
+/custom_components/**/*.json  binary
+**/default.repositories       binary linuguist-language=json
+**/manifest.json              text
+/www/**                       linguist-vendored
+/www/community/**             binary
+.HA_VERSION                   text linguist-generated
