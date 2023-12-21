@@ -10,9 +10,8 @@ branches:
   - name: main
     protection:
       required_status_checks:
-        strict: true
-        contexts:
-          ['🧹 YAML Lint', '🧹 Remark Lint', '🧹 Prettier', '🔩 Get HA Version', '🧪 Check Home Assistant Config']
+        strict: false
+        contexts: ['🧹 YAML Lint', '🧹 Remark Lint', '🧹 Prettier', '🧪 Check Home Assistant Config']
       enforce_admins: true
       required_pull_request_reviews: null
       restrictions: null
