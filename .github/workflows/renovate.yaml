@@ -8,6 +8,7 @@ name: Renovate
   pull_request:
     types: [edited]
   push:
+    branches: ['**']
   workflow_dispatch:
     inputs:
       print_config:
