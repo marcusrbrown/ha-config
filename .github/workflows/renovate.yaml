@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Renovate
-        uses: bfra-me/renovate-action@6434b704ff10169d923fa444ced1f19cd92f3da6 # v2.6.9
+        uses: bfra-me/renovate-action@74d3e3cec44f39bb474f0b9b638bc0fb6e5b7879 # v2.6.10
         with:
           branch: ${{ github.ref != 'refs/heads/main' && github.ref_name || '' }}
           dry_run: ${{ needs.should-renovate.outputs.dry-run }}
