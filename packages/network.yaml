@@ -38,13 +38,6 @@ alert:
         - title: 'Reboot Router'
           action: reboot_router
 
-binary_sensor:
-  - platform: ping
-    name: WAN Ping
-    host: 1.1.1.1
-    count: 5
-    scan_interval: 60
-
 template:
   - binary_sensor:
       - name: WAN
