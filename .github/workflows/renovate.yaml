@@ -1,5 +1,5 @@
 ---
-# Renovate this repository if this workflow file or the Renovate configuration file is changed.
+# Renovate this repository if Renovate-specific tasks are checked or if dispatched.
 name: Renovate
 
 'on':
@@ -19,13 +19,13 @@ name: Renovate
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  cancel-in-progress: false
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
-  should-renovate:
-    name: Check if Renovate should run
+  renovate:
     if: >-
       (github.event_name != 'issues' && github.event_name != 'pull_request') ||
       (
@@ -43,39 +43,28 @@ jobs:
         contains(join(github.event.*.body, ''), '- [x] <!-- unlimit-branch=') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- unschedule-branch=')
       )
-    outputs:
-      dry-run: ${{ steps.create-output.outputs.dry-run }}
-      renovate: ${{ steps.create-output.outputs.renovate }}
+    name: Renovate
     runs-on: ubuntu-latest
     steps:
       - if: github.event_name == 'push'
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - if: github.event_name == 'push'
+      - id: filter
+        if: github.event_name == 'push'
         uses: dorny/paths-filter@7267a8516b6f92bdb098633497bad573efdbf271 # v2.12.0
-        id: filter
         with:
           filters: |
             changes:
               - '.github/workflows/renovate.yaml'
               - '.github/renovate.json5'
-      - id: create-output
-        if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
-        run: |
-          echo 'renovate=true' >> $GITHUB_OUTPUT
-          echo "dry-run=${{ !contains('["main", "renovate/reconfigure"]', github.ref_name) }}" >> $GITHUB_OUTPUT
-
-  renovate:
-    if: needs.should-renovate.outputs.renovate == 'true'
-    name: Renovate
-    needs: should-renovate
-    runs-on: ubuntu-latest
-    steps:
-      - name: Renovate
+      - if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
+        name: Renovate
         uses: bfra-me/renovate-action@61553f2a7e9b0e2c2f3ec9089fc1df757b0494c1 # v2.6.29
         with:
           branch: ${{ github.ref != 'refs/heads/main' && github.ref_name || '' }}
-          dry_run: ${{ needs.should-renovate.outputs.dry-run }}
-          print_config: ${{ inputs.print_config || 'false' }}
+          cache: >-
+            ${{ contains('["push", "workflow_dispatch"]', github.event_name) && github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'renovate/') }}
+          dry_run: ${{ github.event_name == 'push' && !contains('["main", "renovate/reconfigure"]', github.ref_name) }}
+          print_config: ${{ inputs.print_config }}
           renovate_app_id: ${{ secrets.APPLICATION_ID }}
           renovate_app_pem: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           renovate_app_slug: 'mrbro-bot'

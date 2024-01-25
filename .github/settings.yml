@@ -10,16 +10,8 @@ branches:
   - name: main
     protection:
       required_status_checks:
-        strict: false
-        contexts:
-          [
-            '🧹 YAML Lint',
-            '🧹 Remark Lint',
-            '🧹 Prettier',
-            '🧪 Check Home Assistant Config',
-            'Renovate',
-            'Update Repository Settings',
-          ]
+        strict: true
+        contexts: ['🧹 YAML Lint', '🧹 Remark Lint', '🧹 Prettier', '🧪 Check Home Assistant Config', 'Renovate']
       enforce_admins: true
       required_pull_request_reviews: null
       restrictions: null

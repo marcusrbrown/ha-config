@@ -1,4 +1,16 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: ['github>marcusrbrown/renovate-config#v1.16.1'],
+  customManagers: [
+    {
+      customType: 'regex',
+      datasourceTemplate: 'npm',
+      fileMatch: ['^\\.github\\/renovate\\.json5$'],
+      matchStrings: ['npx\\s+(?<depName>prettier)(?:@(?<currentValue>\\d+\\.\\d+\\.\\d+))?'],
+    },
+  ],
+  postUpgradeTasks: {
+    commands: ['npx prettier@3.1.1 --no-color --write .'],
+    executionMode: 'branch',
+  },
 }
