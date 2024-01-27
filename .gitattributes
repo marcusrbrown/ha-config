@@ -4,11 +4,13 @@
 *.gz                          binary
 *.jpg                         binary
 *.png                         binary
+*.woff2                       binary
 
 *.json                        text
 *.json5                       text
 *.md                          text diff=markdown
 *.py                          text diff=python
+*.txt                         text
 *.yaml                        text
 *.yml                         text
 
