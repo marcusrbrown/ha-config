@@ -1,20 +1,27 @@
 {
-  "files.associations": {
-    "*.yaml": "home-assistant",
-    "*.yml": "home-assistant",
-    "**/.github/workflows/*.yaml": "yaml",
-    "**/.github/settings.yml": "yaml",
-    ".prettierrc.yaml": "yaml",
-    ".yamllint*": "yaml"
-  },
+    "files.associations": {
+        "*.yaml": "home-assistant",
+        "*.yml": "home-assistant",
+        "**/.github/workflows/*.yaml": "yaml",
+        "**/.github/settings.yml": "yaml",
+        ".prettierrc.yaml": "yaml",
+        ".yamllint*": "yaml"
+    },
 
-  "search.exclude": {
-    "**/.cloud": true,
-    "**/__pycache__/**": true,
-    "**/bower_components": true,
-    "**/custom_components": true,
-    "**/node_modules": true,
-    "**/www/community": true,
-    "**/*.code-search": true
-  }
+    "prettier.configPath": "/config/.prettierrc.yaml",
+
+    "search.exclude": {
+        "**/.cloud": true,
+        "**/__pycache__/**": true,
+        "**/bower_components": true,
+        "**/custom_components": true,
+        "**/node_modules": true,
+        "**/www/community": true,
+        "**/*.code-search": true
+    },
+
+    // TODO: Remove this once the Prettier extension is pinned to Prettier v3
+    "yaml.schemas": {
+        "https://json.schemastore.org/prettierrc-2.8.8.json": "file:///config/.prettierrc.yaml"
+    }
 }
