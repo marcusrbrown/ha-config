@@ -3,7 +3,8 @@ arrowParens: avoid
 bracketSpacing: false
 overrides:
   - files:
-      - '.vscode/**/.json'
+      - '.vscode/**/*.code-snippets'
+      - '.vscode/**/*.json'
     options:
       tabWidth: 4
 printWidth: 120

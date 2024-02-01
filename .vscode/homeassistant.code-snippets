@@ -1,15 +1,15 @@
 {
-  "Include (file)": {
-    "scope": "yaml",
-    "description": "Include a file",
-    "prefix": ["incl", "include"],
-    "body": "!include ${1:file}.yaml"
-  },
+    "Include (file)": {
+        "scope": "yaml",
+        "description": "Include a file",
+        "prefix": ["incl", "include"],
+        "body": "!include ${1:file}.yaml",
+    },
 
-  "Secret": {
-    "scope": "yaml",
-    "description": "Add a secret defined in secrets.yaml",
-    "prefix": ["secret"],
-    "body": "!secret ${secret_id}"
-  }
+    "Secret": {
+        "scope": "yaml",
+        "description": "Add a secret defined in secrets.yaml",
+        "prefix": ["secret"],
+        "body": "!secret ${secret_id}",
+    },
 }
