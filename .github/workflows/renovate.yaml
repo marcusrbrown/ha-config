@@ -58,7 +58,7 @@ jobs:
               - '.github/renovate.json5'
       - if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         name: Renovate
-        uses: bfra-me/renovate-action@667ffa34264de83830644dfbb134de7aa0beeaa2 # v2.7.19
+        uses: bfra-me/renovate-action@d73dc0b52b4198b59000ac3983361c4bb6a94f54 # v2.7.21
         with:
           branch: ${{ github.ref != 'refs/heads/main' && github.ref_name || '' }}
           cache: >-
