@@ -22,7 +22,7 @@ jobs:
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: 🚀 Run yamllint
-        uses: frenck/action-yamllint@34b4bbcaeabedcfefad6adea8c5bbc42af0e2d47 # v1.5.0
+        uses: frenck/action-yamllint@4eff2494c5af06cb3d5a2a02505e288978e86d3a # v1.4.2
 
   remarklint:
     name: 🧹 Remark Lint
@@ -48,7 +48,7 @@ jobs:
       - name: 💅🏽 Run Prettier
         uses: creyD/prettier_action@31355f8eef017f8aeba2e0bc09d8502b13dbbad1 # v4.3
         env:
-          PRETTIER_VERSION: 3.2.5 # renovate: datasource=npm depName=prettier
+          PRETTIER_VERSION: 3.2.4 # renovate: datasource=npm depName=prettier
         with:
           dry: true
           only_changed: true

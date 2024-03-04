@@ -11,7 +11,8 @@ branches:
     protection:
       required_status_checks:
         strict: true
-        contexts: ['🧹 YAML Lint', '🧹 Remark Lint', '🧹 Prettier', '🧪 Check Home Assistant Config', 'Renovate']
+        contexts:
+          ['🧹 YAML Lint', '🧹 Remark Lint', '🧹 Prettier', '🧪 Check Home Assistant Config', 'Renovate / Renovate']
       enforce_admins: true
       required_pull_request_reviews: null
       restrictions: null
