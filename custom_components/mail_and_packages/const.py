@@ -1,4 +1,5 @@
 """Constants for Mail and Packages."""
+
 from __future__ import annotations
 
 from typing import Final
@@ -12,7 +13,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 DOMAIN = "mail_and_packages"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "0.3.19"
+VERSION = "0.3.21"
 ISSUE_URL = "http://github.com/moralmunky/Home-Assistant-Mail-And-Packages"
 PLATFORM = "sensor"
 PLATFORMS = ["binary_sensor", "camera", "sensor"]
@@ -251,16 +252,20 @@ SENSOR_DATA = {
             "NoReply.ODD@dhl.com",
             "noreply@dhl.de",
             "pl.no.reply@dhl.com",
+            "support@dhl.com",
         ],
         "subject": [
             "DHL On Demand Delivery",
             "Powiadomienie o przesyłce",
             "Paket wurde zugestellt",
+            "DHL Shipment Notification",
         ],
         "body": [
             "has been delivered",
             "została doręczona",
             "ist angekommen",
+            'Notification for shipment event group "Delivered',
+            " - Delivered - ",
         ],
     },
     "dhl_delivering": {
@@ -269,17 +274,21 @@ SENSOR_DATA = {
             "NoReply.ODD@dhl.com",
             "noreply@dhl.de",
             "pl.no.reply@dhl.com",
+            "support@dhl.com",
         ],
         "subject": [
             "DHL On Demand Delivery",
             "Paket kommt heute",
             "Paket wird gleich zugestellt",
             "Powiadomienie o przesyłce",
+            "DHL Shipment Notification",
         ],
         "body": [
             "scheduled for delivery TODAY",
             "zostanie dziś do Państwa doręczona",
             "wird Ihnen heute",
+            " - Shipment is out with courier for delivery - ",
+            "Shipment is scheduled for delivery",
             "voraussichtlich innerhalb",
         ],
     },
@@ -547,6 +556,20 @@ SENSOR_DATA = {
         "subject": ["delivery is delayed"],
     },
     "walmart_tracking": {"pattern": ["#[0-9]{7}-[0-9]{7}"]},
+    # BuildingLink
+    "buildinglink_delivered": {
+        "email": ["notify@buildinglink.com"],
+        "subject": [
+            "Your Amazon order has arrived",
+            "Your USPS delivery has arrived",
+            "Your UPS delivery has arrived",
+            "Your FEDEX delivery has arrived",
+            "You have a package delivery",
+            "You have a DHL delivery",
+            "You have an envelope",
+        ],
+    },
+    "buildinglink_tracking": {},
     # Post NL
     "post_nl_delivering": {
         "email": ["noreply@notificatie.postnl.nl"],
@@ -982,6 +1005,13 @@ SENSOR_TYPES: Final[dict[str, SensorEntityDescription]] = {
         native_unit_of_measurement="package(s)",
         icon="mdi:archive-alert",
         key="walmart_exception",
+    ),
+    # BuildingLink
+    "buildinglink_delivered": SensorEntityDescription(
+        name="Mail BuildingLink Delivered",
+        native_unit_of_measurement="package(s)",
+        icon="mdi:package-variant-closed",
+        key="buildinglink_delivered",
     ),
     # Post NL
     "post_nl_delivering": SensorEntityDescription(
