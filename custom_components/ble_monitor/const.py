@@ -1780,6 +1780,7 @@ MEASUREMENT_DICT = {
     'K9BB-1BTN'               : [["battery", "rssi"], ["one btn switch"], []],
     'MS1BB(MI)'               : [["battery", "rssi"], ["button"], ["opening"]],
     'HS1BB(MI)'               : [["illuminance", "battery", "rssi"], [], ["motion"]],
+    'XMPIRO2SXS'              : [["illuminance", "battery", "rssi"], [], ["motion"]],
     'XMWXKG01YL'              : [["rssi"], ["two btn switch left", "two btn switch right"], []],
     'XMWXKG01LM'              : [["battery", "rssi"], ["one btn switch"], []],
     'PTX'                     : [["battery", "rssi"], ["one btn switch"], []],
@@ -1855,8 +1856,6 @@ MEASUREMENT_DICT = {
     'Meter TH S1'             : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Meter TH plus'           : [["temperature", "humidity", "battery", "rssi"], [], []],
     'Laica Smart Scale'       : [["weight", "impedance", "rssi"], [], []],
-    "Acconeer XM122"          : [["temperature", "battery", "rssi"], [], ["motion"]],
-    "Acconeer XM126"          : [["temperature", "battery", "rssi"], [], ["motion"]],
     'K6 Sensor Beacon'        : [["temperature", "humidity", "acceleration", "voltage", "battery", "rssi"], [], []],
     'DSL-C08'                 : [["battery", "rssi", "voltage"], [], ["lock", "childlock"]],
     'SmartDry cloth dryer'    : [["temperature", "humidity", "voltage", "battery", "shake", "rssi"], [], ["switch"]],
@@ -1894,6 +1893,7 @@ MANUFACTURER_DICT = {
     'XMZNMS04LM'              : 'Xiaomi',
     'XMZNMS08LM'              : 'Xiaomi',
     'MJZNZ018H'               : 'Xiaomi',
+    'XMPIRO2SXS'              : 'Xiaomi',
     'ZX1'                     : '8H Sleep',
     'CGC1'                    : 'Qingping',
     'CGD1'                    : 'Qingping',
@@ -1990,8 +1990,6 @@ MANUFACTURER_DICT = {
     'Meter TH S1'             : 'Switchbot',
     'Meter TH plus'           : 'Switchbot',
     'Laica Smart Scale'       : 'Laica',
-    'Acconeer XM122'          : 'Acconeer',
-    'Acconeer XM126'          : 'Acconeer',
     'K6 Sensor Beacon'        : 'KKM',
     'SmartDry cloth dryer'    : 'SmartDry',
 }
@@ -2026,6 +2024,8 @@ RENAMED_MANUFACTURER_DICT = {
 
 # Sensors that support automatic adding of sensors and binary sensors
 AUTO_MANUFACTURER_DICT = {
+    'Acconeer XM122'          : 'Acconeer',
+    'Acconeer XM126'          : 'Acconeer',
     'Amazfit Smart Scale'     : 'Amazfit',
     'Blustream'               : 'Blustream',
     'BTHome'                  : 'BTHome',
