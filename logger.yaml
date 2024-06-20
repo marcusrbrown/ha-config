@@ -4,4 +4,8 @@
 default: warn
 
 logs:
+  custom_components.ble_monitor: info
+
   homeassistant.components.device_tracker: debug
+
+  homeassistant.loader: info
