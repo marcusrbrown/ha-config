@@ -28,6 +28,22 @@ homeassistant:
       device_type: bluetooth_le
       name: Triones 9104F633 (BLE)
 
+automation:
+  - id: esphome_ble_advertise
+    alias: ESPHome BLE Advertise
+    initial_state: true
+    max: 500
+    max_exceeded: silent
+    mode: parallel
+    trigger:
+      - platform: event
+        event_type: esphome.on_ble_advertise
+    action:
+      - service: ble_monitor.parse_data
+        data:
+          packet: '{{ trigger.event.data.packet }}'
+          gateway_id: "{{ trigger.event.data.gateway_id if trigger.event.data.gateway_id is defined else 'unknown' }}"
+
 ble_monitor:
   active_scan: true
   bt_auto_restart: true
@@ -59,6 +75,23 @@ alert:
         - action: reboot_server
           title: Reboot
 
+input_boolean:
+  settings_ble_gateway:
+    name: BLE Gateway
+    icon: mdi:bluetooth
+    initial: true
+
+  settings_ble_gateway_discovery:
+    name: BLE Gateway Discovery
+    icon: mdi:bluetooth-connect
+    initial: false
+
+input_text:
+  settings_ble_gateway_add_device:
+    name: BLE Gateway Add Device
+    icon: mdi:bluetooth-connect
+    initial: ''
+
 template:
   - sensor:
       - name: Bluetooth Devices
@@ -82,3 +115,35 @@ template:
         attributes:
           entity_id: >
             {{ states.device_tracker | selectattr('attributes.device_type','eq','bluetooth_le')|map(attribute='entity_id')|list }}
+
+  - trigger:
+      - platform: time_pattern
+        minutes: '/1'
+      - platform: state
+        entity_id: input_boolean.settings_ble_gateway
+      - platform: homeassistant
+        event: start
+      - platform: event
+        event_type: event_template_reloaded
+      - platform: event
+        event_type: automation_reloaded
+    binary_sensor:
+      - name: BLE Gateway
+        unique_id: ble_gateway
+        icon: mdi:bluetooth
+        state: "{{ is_state('input_boolean.settings_ble_gateway', 'on') }}"
+        attributes:
+          discovery: "{{ is_state('input_boolean.settings_ble_gateway_discovery', 'on') }}"
+          devices: "{{ states.sensor | selectattr('entity_id', 'search', '^sensor.ble_') | selectattr('attributes.mac_address', 'defined') | map(attribute='attributes.mac_address') | unique | sort | join('') | replace(':', '') ~ states.device_tracker | selectattr('entity_id', 'search', '^device_tracker.ble_') | selectattr('attributes.mac', 'defined') | map(attribute='attributes.mac') | unique | sort | join('') | replace(':', '') if is_state('binary_sensor.ble_gateway', 'on') }}"
+          # TODO: Update to avoid error: 'Error rendering state template for binary_sensor.ble_gateway: TemplateError: Must provide a device or entity ID'
+          # TODO: Ref: https://github.com/myhomeiot/esphome-components/pull/13/files
+          # devices: >-
+          #   {% set devices = namespace(items = []) %}
+          #   {% for s in states | selectattr('entity_id', 'search', '^(device_tracker|sensor).ble_') | map(attribute='entity_id') %}
+          #    {% set devices.items = devices.items + [device_id(s)] %}
+          #   {% endfor %}
+          #   {% set ns = namespace(items = []) %}
+          #   {% for s in devices.items | unique %}
+          #     {% set ns.items = ns.items + [(device_attr(s, 'identifiers') | first)[1]] %}
+          #   {% endfor %}
+          #   {{ ns.items | unique | sort | join('') | replace(':', '') ~ (states('input_text.settings_ble_gateway_add_device') | replace(':', '') | trim) if is_state('binary_sensor.ble_gateway', 'on') }}

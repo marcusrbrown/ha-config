@@ -33,6 +33,7 @@ exclude:
     - zone
 
   entities:
+    - automation.esphome_ble_advertise
     - sensor.date
     - sensor.date_time
     - sensor.time

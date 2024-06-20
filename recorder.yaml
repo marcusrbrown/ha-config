@@ -10,6 +10,8 @@ exclude:
     - sun
     - updater
   entities:
+    - automation.esphome_ble_advertise
+    - binary_sensor.ble_gateway
     - sensor.date
     - sensor.date_time
     - sensor.time
@@ -17,8 +19,11 @@ exclude:
     - sensor.octoprint_*
     - sensor.pi_hole_*
     - sensor.speedtest_*
+    - sensor.*_ble
     - sensor.*uptime*
     - sensor.*random*
+  event_types:
+    - esphome.on_ble_advertise
 
 include:
   domains:
