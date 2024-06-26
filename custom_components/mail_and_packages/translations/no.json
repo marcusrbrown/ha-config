@@ -18,7 +18,9 @@
                     "host": "Vert",
                     "password": "Passord",
                     "port": "Havn",
-                    "username": "Brukernavn"
+                    "username": "Brukernavn",
+                    "imap_security": "IMAP Security",
+                    "verify_ssl": "Verify SSL Cert"
                 },
                 "description": "Vennligst skriv inn tilkoblingsinformasjonen til din postserver.",
                 "title": "E-post og pakker (trinn 1 av 2)"
@@ -67,7 +69,9 @@
                     "host": "Vert",
                     "password": "Passord",
                     "port": "Havn",
-                    "username": "Brukernavn"
+                    "username": "Brukernavn",
+                    "imap_security": "IMAP Security",
+                    "verify_ssl": "Verify SSL Cert"
                 },
                 "description": "Vennligst skriv inn tilkoblingsinformasjonen til din postserver.",
                 "title": "E-post og pakker (trinn 1 av 2)"

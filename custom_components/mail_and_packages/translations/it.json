@@ -18,7 +18,9 @@
                     "host": "Ospite",
                     "password": "Parola d'ordine",
                     "port": "Porta",
-                    "username": "Nome utente"
+                    "username": "Nome utente",
+                    "imap_security": "IMAP Security",
+                    "verify_ssl": "Verify SSL Cert"
                 },
                 "description": "Inserisci le informazioni di connessione del tuo server di posta.",
                 "title": "Posta e pacchi (passaggio 1 di 2)"
@@ -67,7 +69,9 @@
                     "host": "Ospite",
                     "password": "Parola d'ordine",
                     "port": "Porta",
-                    "username": "Nome utente"
+                    "username": "Nome utente",
+                    "imap_security": "IMAP Security",
+                    "verify_ssl": "Verify SSL Cert"
                 },
                 "description": "Inserisci le informazioni di connessione del tuo server di posta.",
                 "title": "Posta e pacchi (passaggio 1 di 2)"

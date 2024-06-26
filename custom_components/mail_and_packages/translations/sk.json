@@ -18,7 +18,9 @@
                     "host": "Host",
                     "password": "Heslo",
                     "port": "Port",
-                    "username": "Užívateľské meno"
+                    "username": "Užívateľské meno",
+                    "imap_security": "IMAP Security",
+                    "verify_ssl": "Verify SSL Cert"
                 },
                 "description": "Zadajte informácie o pripojení vášho poštového servera.",
                 "title": "Pošta a balíky (1. krok z 2)"
@@ -67,7 +69,9 @@
                     "host": "Host",
                     "password": "Heslo",
                     "port": "Port",
-                    "username": "Užívateľské meno"
+                    "username": "Užívateľské meno",
+                    "imap_security": "IMAP Security",
+                    "verify_ssl": "Verify SSL Cert"
                 },
                 "description": "Zadajte informácie o pripojení vášho poštového servera.",
                 "title": "Pošta a balíky (1. krok z 2)"

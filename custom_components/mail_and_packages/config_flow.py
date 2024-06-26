@@ -26,9 +26,11 @@ from .const import (
     CONF_FOLDER,
     CONF_GENERATE_MP4,
     CONF_IMAGE_SECURITY,
+    CONF_IMAP_SECURITY,
     CONF_IMAP_TIMEOUT,
     CONF_PATH,
     CONF_SCAN_INTERVAL,
+    CONF_VERIFY_SSL,
     DEFAULT_ALLOW_EXTERNAL,
     DEFAULT_AMAZON_DAYS,
     DEFAULT_AMAZON_FWDS,
@@ -45,6 +47,7 @@ from .const import (
 )
 from .helpers import _check_ffmpeg, _test_login, get_resources, login
 
+IMAP_SECURITY = ["none", "startTLS", "SSL"]
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -123,9 +126,11 @@ async def _validate_user_input(user_input: dict) -> tuple:
     return errors, user_input
 
 
-def _get_mailboxes(host: str, port: int, user: str, pwd: str) -> list:
+def _get_mailboxes(
+    host: str, port: int, user: str, pwd: str, security: str, verify: bool
+) -> list:
     """Get list of mailbox folders from mail server."""
-    account = login(host, port, user, pwd)
+    account = login(host, port, user, pwd, security, verify)
 
     status, folderlist = account.list()
     mailboxes = []
@@ -163,6 +168,10 @@ def _get_schema_step_1(user_input: list, default_dict: list) -> Any:
             vol.Required(CONF_PORT, default=_get_default(CONF_PORT, 993)): cv.port,
             vol.Required(CONF_USERNAME, default=_get_default(CONF_USERNAME)): cv.string,
             vol.Required(CONF_PASSWORD, default=_get_default(CONF_PASSWORD)): cv.string,
+            vol.Required(
+                CONF_IMAP_SECURITY, default=_get_default(CONF_IMAP_SECURITY)
+            ): vol.In(IMAP_SECURITY),
+            vol.Required(CONF_VERIFY_SSL, default=_get_default(CONF_VERIFY_SSL)): bool,
         }
     )
 
@@ -184,6 +193,8 @@ def _get_schema_step_2(data: list, user_input: list, default_dict: list) -> Any:
                     data[CONF_PORT],
                     data[CONF_USERNAME],
                     data[CONF_PASSWORD],
+                    data[CONF_IMAP_SECURITY],
+                    data[CONF_VERIFY_SSL],
                 )
             ),
             vol.Required(
@@ -195,10 +206,10 @@ def _get_schema_step_2(data: list, user_input: list, default_dict: list) -> Any:
             vol.Optional(CONF_AMAZON_DAYS, default=_get_default(CONF_AMAZON_DAYS)): int,
             vol.Optional(
                 CONF_SCAN_INTERVAL, default=_get_default(CONF_SCAN_INTERVAL)
-            ): vol.All(vol.Coerce(int)),
+            ): vol.All(vol.Coerce(int), vol.Range(min=5)),
             vol.Optional(
                 CONF_IMAP_TIMEOUT, default=_get_default(CONF_IMAP_TIMEOUT)
-            ): vol.All(vol.Coerce(int)),
+            ): vol.All(vol.Coerce(int), vol.Range(min=10)),
             vol.Optional(
                 CONF_DURATION, default=_get_default(CONF_DURATION)
             ): vol.Coerce(int),
@@ -238,7 +249,7 @@ def _get_schema_step_3(user_input: list, default_dict: list) -> Any:
 class MailAndPackagesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for Mail and Packages."""
 
-    VERSION = 5
+    VERSION = 7
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
     def __init__(self):
@@ -257,6 +268,8 @@ class MailAndPackagesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input[CONF_PORT],
                 user_input[CONF_USERNAME],
                 user_input[CONF_PASSWORD],
+                user_input[CONF_IMAP_SECURITY],
+                user_input[CONF_VERIFY_SSL],
             )
             if not valid:
                 self._errors["base"] = "communication"
@@ -272,6 +285,8 @@ class MailAndPackagesFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         # Defaults
         defaults = {
             CONF_PORT: DEFAULT_PORT,
+            CONF_IMAP_SECURITY: "SSL",
+            CONF_VERIFY_SSL: True,
         }
 
         return self.async_show_form(
@@ -372,6 +387,8 @@ class MailAndPackagesOptionsFlow(config_entries.OptionsFlow):
                 user_input[CONF_PORT],
                 user_input[CONF_USERNAME],
                 user_input[CONF_PASSWORD],
+                user_input[CONF_IMAP_SECURITY],
+                user_input[CONF_VERIFY_SSL],
             )
             if not valid:
                 self._errors["base"] = "communication"

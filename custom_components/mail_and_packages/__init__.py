@@ -15,9 +15,11 @@ from .const import (
     CONF_AMAZON_DAYS,
     CONF_AMAZON_FWDS,
     CONF_IMAGE_SECURITY,
+    CONF_IMAP_SECURITY,
     CONF_IMAP_TIMEOUT,
     CONF_PATH,
     CONF_SCAN_INTERVAL,
+    CONF_VERIFY_SSL,
     COORDINATOR,
     DEFAULT_AMAZON_DAYS,
     DEFAULT_AMAZON_FWDS,
@@ -147,7 +149,7 @@ async def update_listener(hass: HomeAssistant, config_entry: ConfigEntry) -> Non
 async def async_migrate_entry(hass, config_entry):
     """Migrate an old config entry."""
     version = config_entry.version
-    new_version = 5
+    new_version = 7
 
     # 1 -> 4: Migrate format
     if version == 1:
@@ -175,7 +177,7 @@ async def async_migrate_entry(hass, config_entry):
         updated_config[CONF_AMAZON_DAYS] = DEFAULT_AMAZON_DAYS
 
     # 2 -> 4
-    if version == 2:
+    if version <= 2:
         _LOGGER.debug("Migrating from version %s", version)
         updated_config = config_entry.data.copy()
 
@@ -189,19 +191,35 @@ async def async_migrate_entry(hass, config_entry):
         # Add default Amazon Days configuration
         updated_config[CONF_AMAZON_DAYS] = DEFAULT_AMAZON_DAYS
 
-    if version == 3:
+    if version <= 3:
         _LOGGER.debug("Migrating from version %s", version)
         updated_config = config_entry.data.copy()
 
         # Add default Amazon Days configuration
         updated_config[CONF_AMAZON_DAYS] = DEFAULT_AMAZON_DAYS
 
-    if version == 4:
+    if version <= 4:
         _LOGGER.debug("Migrating from version %s", version)
         updated_config = config_entry.data.copy()
 
-        if updated_config[CONF_AMAZON_FWDS] == ['""']:
+        if CONF_AMAZON_FWDS in updated_config and updated_config[CONF_AMAZON_FWDS] == [
+            '""'
+        ]:
             updated_config[CONF_AMAZON_FWDS] = DEFAULT_AMAZON_FWDS
+
+    if version <= 5:
+        _LOGGER.debug("Migrating from version %s", version)
+        updated_config = config_entry.data.copy()
+
+        if CONF_VERIFY_SSL not in updated_config:
+            updated_config[CONF_VERIFY_SSL] = True
+
+    if version <= 6:
+        _LOGGER.debug("Migrating from version %s", version)
+        updated_config = config_entry.data.copy()
+
+        if CONF_IMAP_SECURITY not in updated_config:
+            updated_config[CONF_IMAP_SECURITY] = "SSL"
 
     if updated_config != config_entry.data:
         hass.config_entries.async_update_entry(
@@ -233,7 +251,9 @@ class MailDataUpdateCoordinator(DataUpdateCoordinator):
         """Fetch data."""
         async with asyncio.timeout(self.timeout):
             try:
-                data = await process_emails(self.hass, self.config)
+                data = await self.hass.async_add_executor_job(
+                    process_emails, self.hass, self.config
+                )
             except Exception as error:
                 _LOGGER.error("Problem updating sensors: %s", error)
                 raise UpdateFailed(error) from error

@@ -18,7 +18,9 @@
                     "host": "isäntä",
                     "password": "Salasana",
                     "port": "portti",
-                    "username": "Käyttäjätunnus"
+                    "username": "Käyttäjätunnus",
+                    "imap_security": "IMAP Security",
+                    "verify_ssl": "Verify SSL Cert"
                 },
                 "description": "Anna sähköpostipalvelimesi yhteydetiedot.",
                 "title": "Posti ja paketit (vaihe 1/2)"
@@ -67,7 +69,9 @@
                     "host": "isäntä",
                     "password": "Salasana",
                     "port": "portti",
-                    "username": "Käyttäjätunnus"
+                    "username": "Käyttäjätunnus",
+                    "imap_security": "IMAP Security",
+                    "verify_ssl": "Verify SSL Cert"
                 },
                 "description": "Anna sähköpostipalvelimesi yhteydetiedot.",
                 "title": "Posti ja paketit (vaihe 1/2)"
