@@ -3,6 +3,14 @@
 
 default: warn
 
+filters:
+  homeassistant.util.loop:
+    # WARNING (MainThread) [homeassistant.util.loop] Detected blocking call to open inside the event loop by integration 'lacrosse_view'
+    - 'Detected blocking call to open inside the event loop by integration'
+  roombapy.roomba:
+    # WARNING (Thread-6 (_thread_main)) [roombapy.roomba] Unexpectedly disconnected from Roomba 10.61.97.52, code The connection was lost
+    - 'Unexpectedly disconnected from Roomba'
+
 logs:
   custom_components.ble_monitor: info
 
