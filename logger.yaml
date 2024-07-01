@@ -7,8 +7,11 @@ filters:
   homeassistant.util.loop:
     # WARNING (MainThread) [homeassistant.util.loop] Detected blocking call to open inside the event loop by integration 'lacrosse_view'
     - 'Detected blocking call to open inside the event loop by integration'
+  roombapy.remotes_client:
+    # WARNING (Thread-4 (_thread_main)) [roombapy.remote_client] Unknown disconnection error: ID=16.Kindly use https://github.com/pschmitt/roombapy/issues/new
+    - 'Unknown disconnection error'
   roombapy.roomba:
-    # WARNING (Thread-6 (_thread_main)) [roombapy.roomba] Unexpectedly disconnected from Roomba 10.61.97.52, code The connection was lost
+    # WARNING (Thread-6 (_thread_main)) [roombapy.roomba] Unexpectedly disconnected from Roomba NNN.NNN.NNN.NNN, code The connection was lost
     - 'Unexpectedly disconnected from Roomba'
 
 logs:
