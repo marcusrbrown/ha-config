@@ -1,0 +1,35 @@
+- id: '1664389851060'
+  alias: '[LG UH6550] Living Room TV On'
+  description: 'Turn on the LG webOS Smart TV UH6550 in the Living Room.'
+  action:
+    - service: wake_on_lan.send_magic_packet
+      data:
+        mac: !secret lg_uh6550_mac
+    - wait_for_trigger:
+        - platform: state
+          entity_id: media_player.lg_uf6490
+          to: 'on'
+      timeout: '00:00:30'
+  max_exceeded: silent
+  mode: queued
+  trigger:
+    - platform: webostv.turn_on
+      entity_id: media_player.lg_webos_tv_uh6550
+
+- id: '1688878840195'
+  alias: '[LG UF6490] Garage TV On'
+  description: 'Turn on the LG webOS Smart TV UF6490 in the Garage.'
+  action:
+    - service: wake_on_lan.send_magic_packet
+      data:
+        mac: !secret lg_uf6490_mac
+    - wait_for_trigger:
+        - platform: state
+          entity_id: media_player.lg_uf6490
+          to: 'on'
+      timeout: '00:00:30'
+  max_exceeded: silent
+  mode: queued
+  trigger:
+    - platform: webostv.turn_on
+      entity_id: media_player.lg_uf6490
