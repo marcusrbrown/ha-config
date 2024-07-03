@@ -1,0 +1,15 @@
+- id: '1664765485039'
+  alias: Notify on System Updates
+  description: Send update notifications for HA Core, HA OS, HA Supervisor, and HACS.
+  use_blueprint:
+    path: mdegat01/update_notifications.yaml
+    input:
+      reminder_hours: '6'
+      update_entities:
+        - update.hacs_update
+        - update.home_assistant_core_update
+        - update.home_assistant_operating_system_update
+        - update.home_assistant_supervisor_update
+      mobile_app_device: !secret mobile_app_device
+      only_after: '07:00:00'
+      only_before: '21:30:00'
