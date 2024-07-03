@@ -1,0 +1,83 @@
+---
+homeassistant:
+  customize:
+    alert.pi_hole_connected:
+      # entity_picture: !secret PI_HOLE_ICON
+      category: network
+    alert.pi_hole_disabled:
+      icon: mdi:pi-hole
+      category: network
+    device_tracker.pi_eros:
+      icon: mdi:pi-hole
+    switch.pi_hole:
+      assumed_state: false
+    sensor.pi_hole_status:
+      icon: mdi:pi-hole
+
+alert:
+  pi_hole_connected:
+    name: 'Pi-hole Connected'
+    done_message: clear_notification
+    entity_id: binary_sensor.pi_hole_connected_alert
+    message: 'Pi-hole is disconnected.'
+    repeat: [1, 60]
+    skip_first: true
+    state: 'on'
+    title: 'Pi-hole Connected'
+
+  pi_hole_disabled:
+    name: 'Pi-hole Disabled'
+    done_message: clear_notification
+    entity_id: binary_sensor.pi_hole_disabled_alert
+    message: 'Pi-hole is disabled.'
+    repeat: 60
+    state: 'on'
+    title: 'Pi-hole Disabled'
+
+command_line:
+  - sensor:
+      name: 'Pi-hole Status'
+      command: !secret pi_hole_status_cmd
+      value_template: >
+        {% if is_state('binary_sensor.pi_hole_connected', 'off') %} Disconnected
+        {% elif value_json.status == 'enabled' %} Enabled
+        {% elif value_json.status == 'disabled' %} Disabled
+        {% else %} {{ none }}
+        {% endif %}
+
+template:
+  - binary_sensor:
+      - name: 'Pi-hole Connected Alert'
+        unique_id: pi_hole_connected_alert
+        delay_on: 900
+        device_class: problem
+        state: >
+          {{ (is_state('binary_sensor.pi_hole_connected', 'off')
+                or is_state('device_tracker.pi_eros', 'not_home'))
+              and is_state('input_boolean.network_alerts', 'on')
+          }}
+
+      - name: 'Pi-hole Disabled Alert'
+        unique_id: pi_hole_disabled_alert
+        delay_on: 3600
+        device_class: running
+        icon: mdi:pi-hole
+        state: >
+          {{ is_state('sensor.pi_hole_status', 'Disabled')
+              and is_state('input_boolean.network_alerts', 'on')
+          }}
+
+  - trigger:
+      - platform: homeassistant
+        event: start
+      - platform: event
+        event_type: event_template_reloaded
+      - platform: time_pattern
+        minutes: '/1'
+    binary_sensor:
+      - name: Pi-hole Connected
+        unique_id: pi_hole_connected
+        device_class: connectivity
+        # picture: !secret PI_HOLE_ICON
+        state: >
+          {{ integration_entities('pi_hole') | select('has_value') | list | count > 0 }}
