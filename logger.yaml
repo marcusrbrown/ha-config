@@ -4,12 +4,27 @@
 default: warn
 
 filters:
+  aioesphomeapi.connection:
+    #  WARNING (MainThread) [aioesphomeapi.connection] $esphome-device$ @ NNN.NNN.NNN.NNN: Connection error occurred: [Errno 104] Connection reset by peer
+    - 'Connection error occurred'
+  custom_components.mail_and_packages.camera:
+    # WARNING (MainThread) [custom_components.mail_and_packages.camera] Could not read camera Mail USPS Camera image from file: /config/custom_components/mail_and_packages/images/b1714690-4dc4-46d3-9154-277c6188c161.gif
+    - 'Could not read camera'
+  homeassistant.components.lacrosse_view.coordinator:
+    # ERROR (MainThread) [homeassistant.components.lacrosse_view.coordinator] Error requesting LaCrosse View data: 0, message='Attempt to decode JSON with unexpected mimetype: text/html; charset=utf-8', url=URL('https://ingv2.lacrossetechnology.com/api/v1.1/active-user/device-association/ref.user-device.5648216564826112/feed?fields=Temperature,BarometricPressure,Humidity,HeatIndex&tz=America/Phoenix&from=1720279343&to=1720282943&aggregates=ai.ticks.1&types=spot')
+    - 'Error requesting LaCrosse View data'
+  homeassistant.components.roku.coordinator:
+    # ERROR (MainThread) [homeassistant.components.roku.coordinator] Error fetching roku data: Invalid response from API: Timeout occurred while connecting to device
+    - 'Error fetching roku data'
   homeassistant.util.loop:
     # WARNING (MainThread) [homeassistant.util.loop] Detected blocking call to open inside the event loop by integration 'lacrosse_view'
     - 'Detected blocking call to open inside the event loop by integration'
+  led_ble.led_ble:
+    # WARNING (MainThread) [led_ble.led_ble] $led-ble-device$: Device unexpectedly disconnected; RSSI: -98
+    - 'Device unexpectedly disconnected'
   roombapy.remote_client:
     # ERROR (SyncWorker_5) [roombapy.remote_client] Can't connect to NNN.NNN.NNN.NNN
-    - "Can't connect to"
+    - ' connect to'
     # WARNING (Thread-4 (_thread_main)) [roombapy.remote_client] Unknown disconnection error: ID=16.Kindly use https://github.com/pschmitt/roombapy/issues/new
     - 'Unknown disconnection error'
   roombapy.roomba:
