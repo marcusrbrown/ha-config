@@ -1,3 +1,4 @@
+---
 - id: '1664765485039'
   alias: Notify on System Updates
   description: Send update notifications for HA Core, HA OS, HA Supervisor, and HACS.
