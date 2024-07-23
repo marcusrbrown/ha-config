@@ -20,8 +20,6 @@
     },
     {
       matchPackageNames: ['esphome'],
-      commitMessageExtra: 'to {{#if isPinDigest}}{{{newDigestShort}}}{{else}}{{#if newValue}}{{{newValue}}}{{else}}{{{newDigestShort}}}{{/if}}{{/if}}',
-      pinDigests: false,
       separateMajorMinor: false,
       separateMinorPatch: false,
     },
