@@ -37,3 +37,6 @@ exclude:
     - sensor.date
     - sensor.date_time
     - sensor.time
+
+  entity_globs:
+    - sensor.*uptime*
