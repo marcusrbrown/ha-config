@@ -18,10 +18,5 @@
         "**/node_modules": true,
         "**/www/community": true,
         "**/*.code-search": true
-    },
-
-    // TODO: Remove this once the Prettier extension is pinned to Prettier v3
-    "yaml.schemas": {
-        "https://json.schemastore.org/prettierrc-2.8.8.json": "file:///config/.prettierrc.yaml"
     }
 }

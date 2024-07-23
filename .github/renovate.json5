@@ -1,6 +1,25 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+
   extends: ['github>marcusrbrown/renovate-config#v2'],
+
+  packageRules: [
+    {
+      matchManagers: ['pip_requirements'],
+      addLabels: ['python'],
+    },
+    {
+      matchManagers: ['pip_requirements'],
+      matchDepTypes: ['dev'],
+      rangeStrategy: 'pin',
+    },
+    {
+      matchManagers: ['pip_requirements'],
+      matchUpdateTypes: ['minor', 'patch'],
+      automerge: true,
+    },
+  ],
+
   postUpgradeTasks: {
     commands: ['npx prettier@3.3.3 --no-color --write .'],
     executionMode: 'branch',
