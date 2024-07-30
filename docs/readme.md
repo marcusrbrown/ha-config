@@ -12,6 +12,8 @@
   My <a href='https://www.home-assistant.io/' title='Home Assistant'>Home Assistant</a> configuration.
 </p>
 
+ESPHome device configurations are from [esphome.life](https://github.com/marcusrbrown/esphome.life).
+
 ### License
 
 [MIT](license.md)
