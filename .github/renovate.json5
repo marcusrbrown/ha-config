@@ -3,6 +3,10 @@
 
   extends: ['github>marcusrbrown/renovate-config#v2'],
 
+  'git-submodules': {
+    enabled: true,
+  },
+
   packageRules: [
     {
       matchManagers: ['pip_requirements'],
