@@ -6,6 +6,16 @@ homeassistant:
       category: hass
 
 alert:
+  github_connected:
+    name: GitHub Connected
+    entity_id: binary_sensor.github_connected_alert
+    state: 'on'
+    notifiers: log
+    skip_first: false
+    repeat: 999999
+    data:
+      tag: github_connected
+
   unavailable_entities:
     name: Unavailable Entities
     entity_id: binary_sensor.unavailable_entities_alert
@@ -84,8 +94,8 @@ template:
         event: start
       - platform: event
         event_type: event_template_reloaded
-      - platform: state
-        entity_id: sensor.time
+      - platform: time_pattern
+        minutes: '/1'
     sensor:
       - name: Unavailable Entities (Filtered)
         unique_id: unavailable_entities_filtered

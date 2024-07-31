@@ -86,8 +86,9 @@ template:
       - platform: event
         event_type: event_template_reloaded
 
-      - platform: state
-        entity_id: sensor.time
+      - platform: time_pattern
+        minutes: '/5'
+
     binary_sensor:
       - name: 'ZWave Network'
         unique_id: zwave_network
@@ -96,6 +97,7 @@ template:
         state: >
           {{ (is_state('binary_sensor.z_wave_js_running', 'on')
                 or is_state('binary_sensor.z_wave_js_to_mqtt_running', 'on'))
+              and is_state('sensor.quickstick_combo_status', 'ready')
               and integration_entities('zwave_js') | select('has_value') | list | count > 0
           }}
 
