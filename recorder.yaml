@@ -1,52 +1,24 @@
 ---
 # Recorder - https://www.home-assistant.io/integrations/recorder/
 
-purge_keep_days: 31
-exclude:
-  domains:
-    - calendar
-    - group
-    - hacs
-    - sun
-    - updater
-  entities:
-    - automation.esphome_ble_advertise
-    - binary_sensor.ble_gateway
-    - sensor.date
-    - sensor.date_time
-    - sensor.time
-  entity_globs:
-    - sensor.octoprint_*
-    - sensor.pi_hole_*
-    - sensor.speedtest_*
-    - sensor.*_ble
-    - sensor.*uptime*
-    - sensor.*random*
-  event_types:
-    - esphome.on_ble_advertise
-
 include:
   domains:
     - alarm_control_panel
     - alert
-    - automation
     - binary_sensor
+    - calendar
     - climate
     - cover
     - device_tracker
     - fan
     - input_boolean
-    - input_number
     - input_select
-    - input_text
     - light
     - media_player
     - lock
     - person
     - remote
-    - script
     - switch
-    - timer
     - utility_meter
     - vacuum
   entity_globs:
@@ -55,11 +27,18 @@ include:
     - sensor.*_data_download*
     - sensor.*_data_upload*
     - sensor.*_device_temperature
-    - sensor.*_lock_status0
+    - sensor.*_electric_consumption*
+    - sensor.*_lock_status
     - sensor.*_memory_percent
     - sensor.*_monthly
     - sensor.*_stats
     - sensor.*_weekly
     - sensor.*current_power_use*
     - sensor.*energy_consumption*
+    - sensor.current_power_use*
+    - sensor.rbk50*
     - sensor.rbr50*
+    - sensor.rbs50*
+    - sensor.speedtest_*
+
+purge_keep_days: 31
