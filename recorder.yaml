@@ -5,23 +5,30 @@ include:
   domains:
     - alarm_control_panel
     - alert
+    - automation
     - binary_sensor
     - calendar
     - climate
     - cover
     - device_tracker
     - fan
+    - group
     - input_boolean
+    - input_number
     - input_select
+    - input_text
     - light
-    - media_player
     - lock
+    - media_player
     - person
     - remote
+    - script
     - switch
+    - timer
     - utility_meter
     - vacuum
   entity_globs:
+    - sensor.*_ac_energy*
     - sensor.*_cpu_percent
     - sensor.*_daily
     - sensor.*_data_download*
@@ -36,9 +43,7 @@ include:
     - sensor.*current_power_use*
     - sensor.*energy_consumption*
     - sensor.current_power_use*
-    - sensor.rbk50*
     - sensor.rbr50*
-    - sensor.rbs50*
     - sensor.speedtest_*
 
 purge_keep_days: 31
