@@ -30,7 +30,7 @@
   ],
 
   postUpgradeTasks: {
-    commands: ['npx prettier@3.4.1 --no-color --write .'],
+    commands: ['npx prettier@3.4.2 --no-color --write .'],
     executionMode: 'branch',
   },
 }
