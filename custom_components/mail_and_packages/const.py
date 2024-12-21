@@ -6,14 +6,15 @@ from typing import Final
 
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
-    BinarySensorEntityDescription,
 )
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntityDescription
 from homeassistant.helpers.entity import EntityCategory
 
+from .entity import MailandPackagesBinarySensorEntityDescription
+
 DOMAIN = "mail_and_packages"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "0.4.0"
+VERSION = "0.4.3-b0"
 ISSUE_URL = "http://github.com/moralmunky/Home-Assistant-Mail-And-Packages"
 PLATFORM = "sensor"
 PLATFORMS = ["binary_sensor", "camera", "sensor"]
@@ -22,7 +23,7 @@ COORDINATOR = "coordinator_mail"
 OVERLAY = ["overlay.png", "vignette.png", "white.png"]
 SERVICE_UPDATE_FILE_PATH = "update_file_path"
 CAMERA = "cameras"
-CONFIG_VER = 9
+CONFIG_VER = 10
 
 # Attributes
 ATTR_AMAZON_IMAGE = "amazon_image"
@@ -46,6 +47,7 @@ CONF_ALLOW_EXTERNAL = "allow_external"
 CONF_CAMERA_NAME = "camera_name"
 CONF_CUSTOM_IMG = "custom_img"
 CONF_CUSTOM_IMG_FILE = "custom_img_file"
+CONF_STORAGE = "storage"
 CONF_FOLDER = "folder"
 CONF_PATH = "image_path"
 CONF_DURATION = "gif_duration"
@@ -76,6 +78,7 @@ DEFAULT_CUSTOM_IMG = False
 DEFAULT_CUSTOM_IMG_FILE = "custom_components/mail_and_packages/images/mail_none.gif"
 DEFAULT_AMAZON_DAYS = 3
 DEFAULT_AMAZON_DOMAIN = "amazon.com"
+DEFAULT_STORAGE = "custom_components/mail_and_packages/images/"
 
 # Amazon
 AMAZON_DOMAINS = [
@@ -101,9 +104,11 @@ AMAZON_DELIVERED_SUBJECT = [
     "Entregado:",
     "Bezorgd:",
     "Livraison : Votre",
+    "Zugestellt: deine",
 ]
 AMAZON_SHIPMENT_TRACKING = [
     "shipment-tracking",
+    "order-update",
     "conferma-spedizione",
     "confirmar-envio",
     "versandbestaetigung",
@@ -181,6 +186,9 @@ AMAZON_LANGS = [
     "fr_CA.UTF-8",
     "",
 ]
+AMAZON_OTP = "amazon_otp"
+AMAZON_OTP_REGEX = "(\n)(\\d{6})(\n)"
+AMAZON_OTP_SUBJECT = "A one-time password is required for your Amazon delivery"
 
 # Sensor Data
 SENSOR_DATA = {
@@ -252,6 +260,7 @@ SENSOR_DATA = {
         "subject": [
             "Your package has been delivered",
             "Your packages have been delivered",
+            "Your shipment was delivered",
         ],
     },
     "fedex_delivering": {
@@ -260,6 +269,7 @@ SENSOR_DATA = {
             "Delivery scheduled for today",
             "Your package is scheduled for delivery today",
             "Your package is now out for delivery",
+            "Your shipment is out for delivery today",
             "out for delivery today",
         ],
     },
@@ -312,6 +322,7 @@ SENSOR_DATA = {
         "subject": [
             "DHL On Demand Delivery",
             "Paket kommt heute",
+            "kommt heute",
             "Paket wird gleich zugestellt",
             "Powiadomienie o przesyłce",
             "DHL Shipment Notification",
@@ -320,6 +331,7 @@ SENSOR_DATA = {
             "scheduled for delivery TODAY",
             "zostanie dziś do Państwa doręczona",
             "wird Ihnen heute",
+            "heute zwischen",
             " - Shipment is out with courier for delivery - ",
             "Shipment is scheduled for delivery",
             "voraussichtlich innerhalb",
@@ -340,6 +352,7 @@ SENSOR_DATA = {
         "subject": [
             "parcel is now with your local Hermes courier",
             "Ihre Hermes Sendung",
+            "Deine Hermes Sendung",
         ],
         "body": [
             "Voraussichtliche Zustellung",
@@ -458,6 +471,7 @@ SENSOR_DATA = {
         ],
         "subject": [
             "Bald ist ihr DPD Paket da",
+            "kommt Ihr DPD Paket",
         ],
         "body": [
             "Paketnummer",
@@ -567,23 +581,41 @@ SENSOR_DATA = {
     "purolator_tracking": {"pattern": ["\\d{12,15}"]},
     # Intelcom
     "intelcom_delivered": {
-        "email": ["notifications@intelcom.ca"],
+        "email": [
+            "notifications@intelcom.ca",
+            "notifications@dragonflyshipping.ca",
+            "notifications@dragonflyshipping.com",
+        ],
         "subject": [
             "Your order has been delivered!",
+            "Your package has been delivered",
+            "Hooray! Your package is here",
             "Votre commande a été livrée!",
             "Votre colis a été livré!",
         ],
     },
     "intelcom_delivering": {
-        "email": ["notifications@intelcom.ca"],
+        "email": [
+            "notifications@intelcom.ca",
+            "notifications@dragonflyshipping.ca",
+            "notifications@dragonflyshipping.com",
+        ],
         "subject": [
             "Your package is on the way!",
+            "Your package is on its way",
             "Votre colis est en chemin!",
         ],
     },
     "intelcom_packages": {
-        "email": ["notifications@intelcom.ca"],
-        "subject": ["Your package has been received!"],
+        "email": [
+            "notifications@intelcom.ca",
+            "notifications@dragonflyshipping.ca",
+            "notifications@dragonflyshipping.com",
+        ],
+        "subject": [
+            "Your package has been received!",
+            "We've received your package",
+        ],
     },
     "intelcom_tracking": {"pattern": ["INTLCMD[0-9]{9}"]},
     # Walmart
@@ -597,6 +629,7 @@ SENSOR_DATA = {
             "Your order was delivered",
             "Some of your items were delivered",
             "Delivered:",
+            "Arrived:",
         ],
     },
     "walmart_exception": {
@@ -645,6 +678,18 @@ SENSOR_DATA = {
     "post_de_delivered": {},
     "post_de_packages": {},
     "post_de_tracking": {},
+    # Post Austria
+    "post_at_delivering": {
+        "email": ["MeineSendung@post.at"],
+        "subject": ["Sendung ist in Zustellung"],
+    },
+    "post_at_exception": {},
+    "post_at_delivered": {
+        "email": ["MeineSendung@post.at"],
+        "subject": ["Ihre Sendung wurde Zugestellt"],
+    },
+    "post_at_packages": {},
+    "post_at_tracking": {"pattern": ["[0-9]{22}"]},
 }
 
 # Sensor definitions
@@ -755,6 +800,11 @@ SENSOR_TYPES: Final[dict[str, SensorEntityDescription]] = {
         native_unit_of_measurement="package(s)",
         icon="mdi:package",
         key="amazon_hub",
+    ),
+    "amazon_otp": SensorEntityDescription(
+        name="Mail Amazon OTP Code",
+        icon="mdi:counter",
+        key="amazon_otp",
     ),
     # Canada Post
     "capost_delivered": SensorEntityDescription(
@@ -1111,6 +1161,25 @@ SENSOR_TYPES: Final[dict[str, SensorEntityDescription]] = {
         icon="mdi:package-variant-closed",
         key="post_de_packages",
     ),
+    # Post Austria
+    "post_at_delivering": SensorEntityDescription(
+        name="Post AT Delivering",
+        native_unit_of_measurement="package(s)",
+        icon="mdi:truck-delivery",
+        key="post_at_delivering",
+    ),
+    "post_at_delivered": SensorEntityDescription(
+        name="Post AT Delivered",
+        native_unit_of_measurement="package(s)",
+        icon="mdi:package-variant",
+        key="post_at_delivered",
+    ),
+    "post_at_packages": SensorEntityDescription(
+        name="Post AT Packages",
+        native_unit_of_measurement="package(s)",
+        icon="mdi:package-variant-closed",
+        key="post_at_packages",
+    ),
     ###
     # !!! Insert new sensors above these two !!!
     ###
@@ -1143,21 +1212,24 @@ IMAGE_SENSORS: Final[dict[str, SensorEntityDescription]] = {
     ),
 }
 
-BINARY_SENSORS: Final[dict[str, BinarySensorEntityDescription]] = {
-    "usps_update": BinarySensorEntityDescription(
+BINARY_SENSORS: Final[dict[str, MailandPackagesBinarySensorEntityDescription]] = {
+    "usps_update": MailandPackagesBinarySensorEntityDescription(
         name="USPS Image Updated",
         key="usps_update",
         device_class=BinarySensorDeviceClass.UPDATE,
+        selectable=False,
     ),
-    "amazon_update": BinarySensorEntityDescription(
+    "amazon_update": MailandPackagesBinarySensorEntityDescription(
         name="Amazon Image Updated",
         key="amazon_update",
         device_class=BinarySensorDeviceClass.UPDATE,
+        selectable=False,
     ),
-    "usps_mail_delivered": BinarySensorEntityDescription(
+    "usps_mail_delivered": MailandPackagesBinarySensorEntityDescription(
         name="USPS Mail Delivered",
         key="usps_mail_delivered",
         entity_registry_enabled_default=False,
+        selectable=True,
     ),
 }
 
@@ -1191,4 +1263,5 @@ SHIPPERS = [
     "purolator",
     "intelcom",
     "post_nl",
+    "post_at",
 ]
