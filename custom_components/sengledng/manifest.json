@@ -1,0 +1,13 @@
+{
+  "domain": "sengledng",
+  "name": "Sengled NG",
+  "codeowners": ["@kylev"],
+  "config_flow": true,
+  "dependencies": ["zeroconf"],
+  "documentation": "https://github.com/kylev/ha-sengledng",
+  "iot_class": "cloud_polling",
+  "loggers": ["mqtt"],
+  "requirements": ["asyncio-mqtt==0.16.1"],
+  "version": "0.4.2",
+  "zeroconf": ["_sengled._udp.local."]
+}
