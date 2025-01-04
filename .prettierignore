@@ -3,6 +3,7 @@
 blueprints/
 custom_components/
 deps/
+docs/license.md
 www/
 automations.yaml
 scenes.yaml
