@@ -7,6 +7,7 @@ known_devices.yaml
 pyozw.sqlite
 secrets.yaml
 !include/secrets.yaml
+.*.august.conf
 *.db-shm
 *.db-wal
 *.db
@@ -15,8 +16,6 @@ secrets.yaml
 *.key
 *.js.map
 *.pyc
-
-# Custom Components
 
 # Generated images contain personal/private info
 /custom_components/mail_and_packages/images/
