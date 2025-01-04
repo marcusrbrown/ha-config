@@ -4,6 +4,7 @@ extends: default
 ignore: |
   blueprints/
   custom_components/
+  esphome/
   www/
   automations.yaml
   scenes.yaml

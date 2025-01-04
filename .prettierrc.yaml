@@ -2,11 +2,21 @@
 arrowParens: avoid
 bracketSpacing: false
 overrides:
+  # Use 4 spaces for indentation to match the default VS Code settings.
   - files:
+      - '.devcontainer/**/devcontainer*.json'
       - '.vscode/**/*.code-snippets'
       - '.vscode/**/*.json'
     options:
       tabWidth: 4
+
+  # Markdown:
+  # - Disable single quotes for Markdown files.
+  # - Disable `proseWrap` to avoid wrapping prose.
+  - files: ['*.md']
+    options:
+      proseWrap: 'never'
+      singleQuote: false
 printWidth: 120
 semi: false
 singleQuote: true
