@@ -1,0 +1,20 @@
+---
+- binary_sensor:
+    - name: 'Door Sensor Override'
+      unique_id: door_sensor_override
+      state: >
+        {% set entities = state_attr(this.entity_id, 'entity_id') %}
+        {{ entities | count > 0 if entities != none else false }}
+      attributes:
+        entity_id: >
+          {{ expand(expand('group.entry_doors') | map(attribute='entity_id') | list
+              | map('regex_replace', find='binary_sensor(.*)',
+              replace='input_boolean\\1', ignorecase=False) | list)
+                | selectattr('state', 'eq', 'off') | map(attribute='entity_id') | list }}
+
+    - name: 'Front Door Open Alert'
+      unique_id: front_door_open_alert
+      device_class: door
+      state: >
+        {{ is_state('binary_sensor.front_door', 'on')
+            and is_state('input_boolean.front_door', 'on') }}

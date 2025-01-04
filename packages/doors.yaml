@@ -1,0 +1,15 @@
+---
+homeassistant:
+  customize:
+    binary_sensor.front_door:
+      friendly_name: 'Front Door'
+      type: entry
+    binary_sensor.front_door_remote:
+      friendly_name: 'Front Door (Remote)'
+      type: entry
+
+    sensor.front_door_battery_remote:
+      friendly_name: 'Front Door Battery (Remote)'
+
+input_boolean:
+  front_door:

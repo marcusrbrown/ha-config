@@ -1,0 +1,18 @@
+---
+- binary_sensor:
+    - name: 'Unavailable Locks'
+      unique_id: unavailable_locks
+      icon: mdi:lock-question
+      device_class: problem
+      state: >
+        {% set entities = state_attr(this.entity_id, 'entity_id') %}
+        {{ entities | count > 0 if entities != none else false }}
+      attributes:
+        entity_id: "{{ expand('group.entry_locks') | map(attribute='entity_id') | reject('has_value') | list | sort }}"
+
+- sensor:
+    - name: 'Front Door Lock Status'
+      unique_id: front_door_lock_status
+      icon: mdi:account-lock
+      state: "{{ states('input_text.front_door_lock_status') }}"
+      availability: "{{ has_value('lock.front_door_lock') }}"
