@@ -35,10 +35,8 @@
     - service: input_boolean.turn_off
       entity_id: input_boolean.startup_pending
 
-    - service: persistent_notification.create
+    - service: persistent_notification.dismiss
       data:
-        title: 'Home Assistant Startup'
-        message: 'Started at {{ now().strftime("%-I:%M %p") }}.'
         notification_id: 'hass_startup'
 
     - service: system_log.write
