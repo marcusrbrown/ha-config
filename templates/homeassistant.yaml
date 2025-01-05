@@ -1,0 +1,67 @@
+---
+- binary_sensor:
+    - name: 'Github Connected Alert'
+      unique_id: github_connected_alert
+      device_class: problem
+      delay_on: 60
+      state: >
+        {{ is_state('binary_sensor.github_integration_connected', 'off')
+            and is_state('input_boolean.hass_alerts', 'on') }}
+
+    - name: 'Offline Integrations Alert'
+      unique_id: offline_integrations_alert
+      device_class: problem
+      delay_on: 900
+      state: >
+        {{ states('sensor.offline_integrations') | int(-1) > 0
+            and is_state('input_boolean.hass_alerts', 'on')
+            and is_state('input_boolean.startup_pending', 'off') }}
+
+- sensor:
+    - name: 'Unavailable Entities (Filtered)'
+      unique_id: unavailable_entities_filtered
+      icon: "{{ iif(states(this.entity_id) | int(-1) > 0, 'mdi:alert-circle', 'mdi:check-circle') }}"
+      state_class: measurement
+      state: >
+        {% set entities = state_attr('group.unavailable_entities_filtered', 'entity_id') %}
+        {{ entities | count if entities != none else -1 }}
+
+    - name: 'Offline Integrations'
+      unique_id: offline_integrations
+      icon: "{{ iif(states(this.entity_id) == '0', 'mdi:api', 'mdi:api-off') }}"
+      state_class: measurement
+      state: >
+        {% set entities = state_attr('group.offline_integrations', 'entity_id') %}
+        {{ entities | count if entities != none else -1 }}
+
+    - name: 'Available Updates'
+      unique_id: available_updates
+      icon: "{{ iif(states('sensor.available_updates') | int(-1) > 0, 'mdi:cloud-upload', 'mdi:cloud-check') }}"
+      state_class: measurement
+      state: >
+        {% set entities = state_attr('group.available_updates', 'entity_id') %}
+        {{ entities | count if entities != none else -1 }}
+
+    - name: 'Connected Browsers'
+      unique_id: connected_browsers
+      icon: mdi:monitor-cellphone
+      state: >
+        {% set entities = state_attr('group.connected_browsers', 'entity_id') %}
+        {{ entities | count if entities != none else -1 }}
+
+- trigger:
+    - platform: homeassistant
+      event: start
+
+    - platform: event
+      event_type: event_template_reloaded
+
+    - platform: time_pattern
+      minutes: '/1'
+
+  binary_sensor:
+    - name: 'Github Connected'
+      unique_id: github_integration_connected
+      icon: mdi:github
+      device_class: connectivity
+      state: "{{ integration_entities('github') | select('has_value') | list | count > 0 }}"
