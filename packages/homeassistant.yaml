@@ -83,7 +83,7 @@ alert:
 
 group:
   ignored_unavailable_entities:
-    entities: !include /config/include/ignored_entities.yaml
+    entities: !include ../include/ignored_entities.yaml
 
   integration_connected_sensors:
     all: true
