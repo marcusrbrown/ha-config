@@ -1,0 +1,2 @@
+[tools]
+"aqua:pre-commit/pre-commit" = "4.0.1"

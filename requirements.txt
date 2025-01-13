@@ -1,3 +1,2 @@
 esphome==2024.12.2
-pre-commit==4.0.1
 yamllint==1.35.1
