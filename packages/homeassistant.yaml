@@ -1,9 +1,25 @@
 ---
 homeassistant:
   customize:
+    alert.available_updates:
+      icon: mdi:cloud-upload
+      category: hass
+    alert.github_connected:
+      #      entity_picture: !secret GITHUB_ICON
+      category: hass
+    alert.low_battery:
+      icon: mdi:battery-alert
+      category: hass
     alert.unavailable_entities:
       icon: mdi:alert-circle
       category: hass
+    alert.unknown_browsers:
+      icon: mdi:monitor-dashboard
+      category: hass
+      tts_repeat: true
+      tts_timeout: 15
+      quiet_play: true
+      save_message: true
 
 alert:
   github_connected:
@@ -11,10 +27,39 @@ alert:
     entity_id: binary_sensor.github_connected_alert
     state: 'on'
     notifiers: log
-    skip_first: false
+    skip_first: true
     repeat: 999999
     data:
       tag: github_connected
+
+  low_battery:
+    name: 'Low Battery'
+    title: 'Low Battery'
+    message: |
+      {%- set entities = expand('group.low_batteries') -%}
+      {%- for item in entities -%}
+      {{- item.name | lower | replace(' battery level', '') | replace(': battery level', '') | title }} - {{ item.state_with_unit }}
+      {%- if not loop.last %}<br/>{% endif -%}
+      {%- endfor -%}
+    done_message: clear_notification
+    entity_id: binary_sensor.low_battery_alert
+    state: 'on'
+    repeat: 1440
+    # notifiers: marcus
+    data:
+      tag: low_battery
+      group: System
+      channel: Alert
+      visibility: public
+      notification_icon: mdi:battery-alert
+      # icon_url: !secret BATTERY_ICON
+      # ledColor: !secret WARNING_COLOR
+      # color: !secret WARNING_COLOR
+      # vibrationPattern: !secret ALERT_VIBRATION
+      # clickAction: /ui-hass/hass
+      actions:
+        - title: 'Pause'
+          action: pause_alert_low_battery
 
   unavailable_entities:
     name: Unavailable Entities
@@ -37,18 +82,6 @@ alert:
       tag: unknown_devices
 
 group:
-  add_on_cpu_sensors:
-    entities:
-      - sensor.advanced_ssh_web_terminal_cpu_percent
-      - sensor.esphome_cpu_percent
-      - sensor.z_wave_js_cpu_percent
-
-  add_on_memory_sensors:
-    entities:
-      - sensor.advanced_ssh_web_terminal_memory_percent
-      - sensor.esphome_memory_percent
-      - sensor.z_wave_js_memory_percent
-
   ignored_unavailable_entities:
     entities: !include ../include/ignored_entities.yaml
 
@@ -58,10 +91,21 @@ group:
       - binary_sensor.github_connected
 
 input_boolean:
+  hass_alerts:
+    name: 'Home Assistant Alerts'
+    icon: mdi:alert
   startup_pending:
     name: 'Startup Pending'
     icon: mdi:restart-alert
     initial: true
+
+input_number:
+  battery_alert_threshold:
+    name: Battery Alert Threshold
+    icon: mdi:battery-alert
+    initial: 10
+    max: 100
+    min: 0
 
 sensor:
   # https://www.home-assistant.io/integrations/websocket_api/
@@ -88,34 +132,3 @@ template:
                 | rejectattr('attributes.device_type', 'in', ['bluetooth', 'bluetooth_le', 'location', 'wired', 'wireless'])
                 | map(attribute='entity_id') | select('has_value') | list | sort
             }}
-
-  - trigger:
-      - platform: homeassistant
-        event: start
-      - platform: event
-        event_type: event_template_reloaded
-      - platform: time_pattern
-        minutes: '/1'
-    sensor:
-      - name: Unavailable Entities (Filtered)
-        unique_id: unavailable_entities_filtered
-        icon: "{{ iif(states(this.entity_id) | int(-1) > 0, 'mdi:alert-circle', 'mdi:check-circle') }}"
-        state_class: measurement
-        unit_of_measurement: entities
-        state: >
-          {% set entities = state_attr(this.entity_id, 'entity_id') %}
-          {{ entities | count if entities != none else -1 }}
-        attributes:
-          entity_id: >
-            {% set ignore_seconds = 60 %}
-            {% set ignored = state_attr('group.ignored_unavailable_entities', 'entity_id') %}
-            {% set ignore_ts = (now().timestamp() - ignore_seconds) | as_datetime %}
-            {% set entities = states
-                | rejectattr('domain', 'in', ['button', 'device_tracker', 'geo_location', 'group', 'input_text', 'scene'])
-                | rejectattr('entity_id', 'in', integration_entities('browser_mod'))
-                | rejectattr('entity_id', 'in', integration_entities('github'))
-                | rejectattr('entity_id', 'in', integration_entities('hassio'))
-                | rejectattr('last_changed', 'ge', ignore_ts)
-            %}
-            {% set entities = entities | rejectattr('entity_id', 'in', ignored) if ignored != none else entities %}
-            {{ entities | map(attribute='entity_id') | reject('has_value') | list | sort }}

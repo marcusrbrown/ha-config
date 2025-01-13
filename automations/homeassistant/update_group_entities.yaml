@@ -1,0 +1,126 @@
+---
+- id: hass_update_group_entities
+  alias: '[Home Assistant] Update Group Entities'
+  description: 'Update entity groups.'
+  mode: single
+  max_exceeded: silent
+  triggers:
+    - trigger: homeassistant
+      id: startup
+      event: start
+
+    - trigger: state
+      entity_id: input_boolean.startup_pending
+      to: 'off'
+
+    - trigger: event
+      event_type: call_service
+      event_data:
+        domain: group
+        service: reload
+
+    - trigger: time_pattern
+      minutes: '/1'
+  actions:
+    - action: group.set
+      data:
+        object_id: hass_alerts
+        entities: >
+          {{ states.alert
+              | selectattr('attributes.category', 'in',
+                  ['hass', 'network', 'system', 'zwave', 'bluetooth'])
+                  | map(attribute='entity_id') | list | sort }}
+
+    - action: group.set
+      data:
+        object_id: low_batteries
+        entities: >
+          {% set low_batteries = namespace(value=[]) %}
+          {% set batteries = states.sensor
+              | selectattr('attributes.device_class', 'eq', 'battery')
+              | rejectattr('attributes.mobile', 'eq', true)
+              | map(attribute='entity_id') | list | sort %}
+          {% for item in batteries %}
+            {% if states(item) == 'on' or (states(item) | int(-1) != -1 and states(item) | int(0)
+                < states('input_number.battery_alert_threshold') | int) %}
+              {% set low_batteries.value = low_batteries.value + [item] %}
+            {% endif %}
+          {% endfor %}
+          {{ low_batteries.value }}
+
+    - action: group.set
+      data:
+        object_id: connected_browsers
+        entities: >
+          {{ states.sensor
+              | selectattr('entity_id', 'contains', '_browser_user')
+              | rejectattr('entity_id', 'contains', '_browser_useragent')
+              | map(attribute='entity_id') | select('has_value') | list | sort }}
+
+    - action: group.set
+      data:
+        object_id: integration_connected_sensors
+        entities: >
+          {{ states.binary_sensor
+              | selectattr('entity_id', 'contains', '_integration_connected')
+              | map(attribute='entity_id')
+              | select('has_value') | list | sort }}
+
+    - action: group.set
+      data:
+        object_id: add_on_memory_sensors
+        entities: >
+          {{ expand(integration_entities('hassio'))
+              | selectattr('entity_id', 'contains', '_memory_percent')
+              | rejectattr('entity_id', 'in', ['sensor.home_assistant_core_memory_percent',
+                  'sensor.home_assistant_supervisor_memory_percent'])
+              | map(attribute='entity_id')
+              | select('has_value') | list | sort }}
+
+    - action: group.set
+      data:
+        object_id: add_on_cpu_sensors
+        entities: >
+          {{ expand(integration_entities('hassio'))
+              | selectattr('entity_id', 'contains', '_cpu_percent')
+              | rejectattr('entity_id', 'in', ['sensor.home_assistant_core_cpu_percent',
+                  'sensor.home_assistant_supervisor_cpu_percent'])
+              | map(attribute='entity_id')
+              | select('has_value') | list | sort }}
+
+    - action: group.set
+      data:
+        object_id: unavailable_entities_filtered
+        name: 'Unavailable Entities (Filtered)'
+        entities: >
+          {{ states
+              | selectattr('state', 'in', ['unknown', 'unavailable'])
+              | rejectattr('domain', 'in', ['button', 'conversation', 'device_tracker', 'event', 'group', 'image', 'input_button', 'input_text', 'remote', 'tts', 'scene', 'stt'])
+              | rejectattr('entity_id', 'in', integration_entities('browser_mod'))
+              | rejectattr('entity_id', 'in', integration_entities('fully_kiosk'))
+              | rejectattr('entity_id', 'in', integration_entities('hassio'))
+              | rejectattr('entity_id', 'in', integration_entities('dlna_dmr'))
+              | rejectattr('entity_id', 'in', state_attr('group.ignored_unavailable_entities', 'entity_id'))
+              | rejectattr('entity_id', 'contains', '_next_cycle')
+              | rejectattr('entity_id', 'contains', 'sensor.system_monitor_network')
+              | rejectattr('entity_id', 'search', '_door_lock_intrusion|_door_lock_lock_jammed|_door_lock_keypad_temporary_disabled|_door_lock_system_hardware_failure')
+              | rejectattr('entity_id', 'search', 'iphone_app|ultravisor_app|_timers|_alarms|_next_alarm')
+              | map(attribute='entity_id') | list | sort }}
+
+    - delay: 1
+
+    - action: group.set
+      data:
+        object_id: offline_integrations
+        entities: >
+          {{ expand('group.integration_connected_sensors') | selectattr('state', 'in', ['off', 'unknown', 'unavailable'])
+              | map(attribute='entity_id') | list | sort }}
+
+    - action: group.set
+      data:
+        object_id: unknown_browsers
+        entities: >
+          {{ expand('group.connected_browsers')
+              | selectattr('attributes.authorized', 'ne', true)
+              | map(attribute='entity_id')
+              | select('has_value') | list | sort }}

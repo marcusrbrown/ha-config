@@ -1,12 +1,4 @@
 ---
-group:
-  alert_controls:
-    all: true
-    entities:
-      - input_boolean.bluetooth_alerts
-      - input_boolean.hass_alerts
-      - input_boolean.network_alerts
-
 input_boolean:
   bluetooth_alerts:
     name: Bluetooth Alerts
@@ -98,20 +90,3 @@ template:
           {{ is_state('binary_sensor.offline_zwave_devices', 'on')
               and is_state('input_boolean.hass_alerts', 'on')
           }}
-
-  - trigger:
-      - platform: homeassistant
-        event: start
-
-      - platform: event
-        event_type: event_template_reloaded
-
-      - platform: time_pattern
-        minutes: '/1'
-
-    binary_sensor:
-      - name: 'Github Connected'
-        unique_id: github_connected
-        icon: mdi:github
-        device_class: connectivity
-        state: "{{ integration_entities('github') | select('has_value') | list | count > 0 }}"
