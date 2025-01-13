@@ -5,6 +5,25 @@
 
   automergeType: 'pr',
 
+  customManagers: [
+    {
+      customType: 'regex',
+      fileMatch: ['^\\.pre-commit-config\\.yaml$'],
+      matchStrings: ['(?<depName>python)(?<currentValue>(\\d+\\.){2}\\d+)'],
+      packageNameTemplate: 'python/cpython',
+      datasourceTemplate: 'github-tags',
+      depTypeTemplate: 'engines',
+      extractVersionTemplate: '^v(?<version>.*)$',
+    },
+    {
+      customType: 'regex',
+      fileMatch: ['^\\.pre-commit-config\\.yaml$'],
+      matchStrings: ['(?<depName>\\S+)==(?<currentValue>(\\d+\\.){2}\\d+)'],
+      datasourceTemplate: 'pypi',
+      depTypeTemplate: 'dev-dependencies',
+    },
+  ],
+
   'git-submodules': {
     enabled: true,
   },
@@ -29,10 +48,19 @@
       separateMajorMinor: false,
       separateMinorPatch: false,
     },
+    {
+      matchPackageNames: ['pre-commit', 'pre-commit/pre-commit'],
+      groupName: 'pre-commit',
+    },
   ],
 
   postUpgradeTasks: {
     commands: ['npx prettier@3.4.2 --no-color --write .'],
     executionMode: 'branch',
+  },
+
+  'pre-commit': {
+    addLabels: ['pre-commit'],
+    enabled: true,
   },
 }
