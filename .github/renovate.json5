@@ -22,6 +22,15 @@
       datasourceTemplate: 'pypi',
       depTypeTemplate: 'dev-dependencies',
     },
+    {
+      customType: 'regex',
+      fileMatch: ['^mise\\.toml$'],
+      matchStrings: [
+        '["\']aqua:(?<depName>pre-commit/pre-commit)["\']\\s+=\\s+["\'](?<currentValue>(\\d+\\.){2}\\d+)["\']',
+      ],
+      datasourceTemplate: 'pypi',
+      depTypeTemplate: 'dev-dependencies',
+    },
   ],
 
   'git-submodules': {
