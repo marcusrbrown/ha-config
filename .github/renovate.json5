@@ -28,7 +28,7 @@
       matchStrings: [
         '["\']aqua:(?<depName>pre-commit/pre-commit)["\']\\s+=\\s+["\'](?<currentValue>(\\d+\\.){2}\\d+)["\']',
       ],
-      datasourceTemplate: 'pypi',
+      datasourceTemplate: 'github-releases',
       depTypeTemplate: 'dev-dependencies',
     },
   ],
