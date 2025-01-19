@@ -1,6 +1,10 @@
 ---
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+
+# Always exclude files that are updated by Home Assistant
+exclude: '^(custom_components/|www/|\.HA_VERSION)'
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -16,3 +20,4 @@ repos:
       - id: check-merge-conflict
       - id: check-toml
       - id: check-yaml
+        args: [--unsafe] # Allow HA YAML extensions
