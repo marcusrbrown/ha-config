@@ -61,6 +61,7 @@ from .const import (
     ATTR_CODE,
     ATTR_COUNT,
     ATTR_EMAIL,
+    ATTR_GRID_IMAGE_NAME,
     ATTR_IMAGE_NAME,
     ATTR_IMAGE_PATH,
     ATTR_ORDER,
@@ -77,6 +78,7 @@ from .const import (
     CONF_CUSTOM_IMG_FILE,
     CONF_DURATION,
     CONF_FOLDER,
+    CONF_GENERATE_GRID,
     CONF_GENERATE_MP4,
     CONF_IMAP_SECURITY,
     CONF_STORAGE,
@@ -194,6 +196,7 @@ def process_emails(hass: HomeAssistant, config: ConfigEntry) -> dict:
     resources = config.get(CONF_RESOURCES)
     imap_security = config.get(CONF_IMAP_SECURITY)
     verify_ssl = config.get(CONF_VERIFY_SSL)
+    generate_grid = config.get(CONF_GENERATE_GRID)
 
     # Create the dict container
     data = {}
@@ -216,6 +219,11 @@ def process_emails(hass: HomeAssistant, config: ConfigEntry) -> dict:
     image_name = image_file_name(hass, config)
     _LOGGER.debug("Image name: %s", image_name)
     _image[ATTR_IMAGE_NAME] = image_name
+
+    if generate_grid:
+        png_file = image_name.replace(".gif", "_grid.png")
+        _LOGGER.debug("Grid image name: %s", png_file)
+        _image[ATTR_GRID_IMAGE_NAME] = png_file
 
     # Amazon delivery image name
     image_name = image_file_name(hass, config, True)
@@ -273,7 +281,9 @@ def copy_images(hass: HomeAssistant, config: ConfigEntry) -> None:
 
 
 def image_file_name(
-    hass: HomeAssistant, config: ConfigEntry, amazon: bool = False
+    hass: HomeAssistant,
+    config: ConfigEntry,
+    amazon: bool = False,
 ) -> str:
     """Determine if filename is to be changed or not.
 
@@ -381,6 +391,7 @@ def fetch(
     img_out_path = f"{hass.config.path()}/{default_image_path(hass, config)}"
     gif_duration = config.get(CONF_DURATION)
     generate_mp4 = config.get(CONF_GENERATE_MP4)
+    generate_grid = config.get(CONF_GENERATE_GRID)
     amazon_fwds = cv.ensure_list_csv(config.get(CONF_AMAZON_FWDS))
     image_name = data[ATTR_IMAGE_NAME]
     amazon_image_name = data[ATTR_AMAZON_IMAGE]
@@ -404,6 +415,7 @@ def fetch(
             image_name,
             generate_mp4,
             nomail,
+            generate_grid,
         )
     elif sensor == AMAZON_PACKAGES:
         count[sensor] = get_items(
@@ -483,15 +495,15 @@ def login(
     try:
         if security == "SSL":
             if not verify:
-                context = ssl.client_context_no_verify()
+                context = ssl.get_default_no_verify_context()
             else:
-                context = ssl.client_context()
+                context = ssl.get_default_context()
             account = imaplib.IMAP4_SSL(host=host, port=port, ssl_context=context)
         elif security == "startTLS":
             if not verify:
-                context = ssl.client_context_no_verify()
+                context = ssl.get_default_no_verify_context()
             else:
-                context = ssl.client_context()
+                context = ssl.get_default_context()
             account = imaplib.IMAP4(host=host, port=port)
             account.starttls(context)
         else:
@@ -661,6 +673,7 @@ def get_mails(
     image_name: str,
     gen_mp4: bool = False,
     custom_img: str = None,
+    gen_grid: bool = False,
 ) -> int:
     """Create GIF image based on the attachments in the inbox."""
     image_count = 0
@@ -837,6 +850,8 @@ def get_mails(
 
         if gen_mp4:
             _generate_mp4(image_output_path, image_name)
+        if gen_grid:
+            generate_grid_img(image_output_path, image_name, image_count)
 
     return image_count
 
@@ -869,6 +884,43 @@ def _generate_mp4(path: str, image_file: str) -> None:
             "-pix_fmt",
             "yuv420p",
             mp4_file,
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+
+def generate_grid_img(path: str, image_file: str, count: int) -> None:
+    """Generate png grid from gif.
+
+    use a subprocess so we don't lock up the thread
+    comamnd: ffmpeg -f gif -i infile.gif outfile.mp4
+    """
+    count = max(count, 1)
+    if count % 2 == 0:
+        length = int(count / 2)
+    else:
+        length = int(count / 2) + count % 2
+
+    gif_image = os.path.join(path, image_file)
+    png_file = os.path.join(path, image_file.replace(".gif", "_grid.png"))
+    filecheck = os.path.isfile(png_file)
+    _LOGGER.debug("Generating png image grid: %s", png_file)
+    if filecheck:
+        cleanup_images(os.path.split(png_file))
+        _LOGGER.debug("Removing old png grid: %s", png_file)
+
+    # TODO: find a way to call ffmpeg the right way from HA
+    subprocess.call(
+        [
+            "ffmpeg",
+            "-i",
+            gif_image,
+            "-r",
+            "0.20",
+            "-filter_complex",
+            f"tile=2x{length}:padding=10:color=black",
+            png_file,
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -933,6 +985,9 @@ def cleanup_images(path: str, image: Optional[str] = None) -> None:
 
     Only supose to delete .gif, .mp4, and .jpg files
     """
+    if isinstance(path, tuple):
+        path = path[0]
+        image = path[1]
     if image is not None:
         try:
             os.remove(path + image)
@@ -941,7 +996,12 @@ def cleanup_images(path: str, image: Optional[str] = None) -> None:
         return
 
     for file in os.listdir(path):
-        if file.endswith(".gif") or file.endswith(".mp4") or file.endswith(".jpg"):
+        if (
+            file.endswith(".gif")
+            or file.endswith(".mp4")
+            or file.endswith(".jpg")
+            or file.endswith(".png")
+        ):
             try:
                 os.remove(path + file)
             except Exception as err:
