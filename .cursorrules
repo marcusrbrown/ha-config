@@ -1,0 +1,188 @@
+# Home Assistant Configuration AI Development Rules
+
+## Base Layer (Universal Constants)
+
+### 1. Quality Fundamentals
+
+#### YAML Standards
+- Enforce YAML best practices for Home Assistant configurations
+- Follow `.yamllint.yaml` rules with specified exclusions
+- Use single quotes for strings unless double quotes are required
+- Maintain proper indentation (2 spaces)
+
+#### Code Style
+- Follow pre-commit hook standards defined in `.pre-commit-config.yaml`
+- Respect file-specific exclusions for auto-generated content
+- Maintain clean line endings and trailing whitespace rules
+- Follow Home Assistant's YAML configuration patterns
+
+#### Documentation
+- Required for all custom components and automations
+- Include inline comments for complex automations
+- Maintain updated README files for custom components
+- Document all secrets.yaml references
+
+#### Testing Requirements
+- Validate all YAML configurations before commits
+- Test automations in development environment
+- Verify entity availability in scripts and automations
+- Check for breaking changes in Home Assistant version updates
+
+### 2. Process Standards
+
+#### Version Control
+- Follow `.gitignore` patterns for sensitive files
+- Exclude auto-generated files from version control
+- Maintain clean commit history
+- Use semantic versioning for custom components
+
+#### Security
+- Never expose API keys or sensitive data
+- Use secrets.yaml for all sensitive information
+- Validate access patterns in automations
+- Follow Home Assistant security best practices
+
+## Flexible Layer (Project-Specific)
+
+### 1. Architecture Rules
+```yaml
+architecture:
+  pattern: home_assistant_core
+  components:
+    - automations
+    - scripts
+    - packages
+    - custom_components
+  boundaries:
+    - respect_yaml_structure
+    - maintain_package_organization
+    - isolate_custom_components
+```
+
+### 2. Technology Stack
+```yaml
+stack:
+  core: home_assistant
+  custom_components:
+    validation: strict
+    documentation: required
+    testing: required
+  frontend:
+    type: lovelace
+    customization: allowed
+  automation:
+    engine: home_assistant
+    validation: required
+```
+
+### 3. Project Structure
+```yaml
+structure:
+  root:
+    - configuration.yaml
+    - secrets.yaml
+    - packages/
+    - automations/
+    - custom_components/
+  packages:
+    organization: domain_based
+    validation: strict
+  automations:
+    organization: feature_based
+    documentation: required
+```
+
+## Validation Strategies
+
+### 1. Configuration Validation
+- Verify YAML syntax
+- Check entity references
+- Validate template syntax
+- Confirm package includes
+
+### 2. Custom Component Validation
+- Python type checking
+- Home Assistant integration standards
+- Documentation completeness
+- Security review
+
+### 3. Automation Validation
+- Logic verification
+- Entity availability check
+- Trigger/condition validation
+- Performance impact assessment
+
+## Quality Gates
+
+### 1. Pre-Commit
+- YAML lint
+- Python lint (custom components)
+- Secret exposure check
+- Large file detection
+
+### 2. Development
+- Configuration validation
+- Custom component testing
+- Automation dry-run
+- Breaking change review
+
+### 3. Deployment
+- Backup verification
+- Version compatibility check
+- Entity availability test
+- Integration testing
+
+## Adaptation Rules
+
+### 1. Version Management
+```yaml
+version_control:
+  ha_version: track_current
+  custom_components: pin_versions
+  python_dependencies: strict_requirements
+```
+
+### 2. Integration Patterns
+```yaml
+integrations:
+  core: strict_standards
+  custom: flexible_implementation
+  third_party: version_controlled
+```
+
+### 3. Development Workflow
+```yaml
+workflow:
+  development: feature_branches
+  testing: required
+  documentation: inline_and_markdown
+  deployment: staged_rollout
+```
+
+## Custom Rules
+
+### 1. Home Assistant Specific
+- Follow entity naming conventions
+- Maintain domain separation
+- Use appropriate integration methods
+- Follow state management best practices
+
+### 2. Project Organization
+- Maintain package-based structure
+- Group related configurations
+- Use templates for reusability
+- Follow established patterns
+
+### 3. Performance Guidelines
+- Monitor automation complexity
+- Optimize trigger conditions
+- Use appropriate update intervals
+- Manage service call frequency
+
+## Implementation Notes
+
+1. This ruleset is designed to work with Home Assistant's configuration structure
+2. Rules adapt based on component type (core vs custom)
+3. Validation levels vary by configuration criticality
+4. Security standards are non-negotiable
+5. Performance impact is considered for all changes
