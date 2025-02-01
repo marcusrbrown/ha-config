@@ -12,7 +12,7 @@ from .entity import MailandPackagesBinarySensorEntityDescription
 
 DOMAIN = "mail_and_packages"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "0.4.3-b1"
+VERSION = "0.4.3-b3"
 ISSUE_URL = "http://github.com/moralmunky/Home-Assistant-Mail-And-Packages"
 PLATFORM = "sensor"
 PLATFORMS = ["binary_sensor", "camera", "sensor"]
@@ -27,6 +27,7 @@ CONFIG_VER = 10
 ATTR_AMAZON_IMAGE = "amazon_image"
 ATTR_COUNT = "count"
 ATTR_CODE = "code"
+ATTR_GRID_IMAGE_NAME = "grid_image"
 ATTR_ORDER = "order"
 ATTR_TRACKING = "tracking"
 ATTR_TRACKING_NUM = "tracking_#"
@@ -52,6 +53,7 @@ CONF_DURATION = "gif_duration"
 CONF_SCAN_INTERVAL = "scan_interval"
 CONF_IMAGE_SECURITY = "image_security"
 CONF_IMAP_TIMEOUT = "imap_timeout"
+CONF_GENERATE_GRID = "generate_grid"
 CONF_GENERATE_MP4 = "generate_mp4"
 CONF_AMAZON_FWDS = "amazon_fwds"
 CONF_AMAZON_DAYS = "amazon_days"
@@ -693,6 +695,18 @@ SENSOR_DATA = {
     },
     "post_at_packages": {},
     "post_at_tracking": {"pattern": ["[0-9]{22}"]},
+    # Rewe Lieferservice
+    "rewe_lieferservice_delivering": {
+        "email": ["lieferservice@rewe.de"],
+        "subject": ["Lieferschein zu deiner Bestellung beim REWE Lieferservice"],
+        "body": ["Deine Lieferinformationen"],
+    },
+    "rewe_lieferservice_exception": {},
+    "rewe_lieferservice_delivered": {
+        "email": ["reweshop@mailing.rewe.de"],
+        "subject": ["Deine Rechnung zu"],
+        "body": ["Im Anhang dieser E-Mail kommt"],
+    },
 }
 
 # Sensor definitions
@@ -1183,6 +1197,25 @@ SENSOR_TYPES: Final[dict[str, SensorEntityDescription]] = {
         icon="mdi:package-variant-closed",
         key="post_at_packages",
     ),
+    # Rewe Lieferservice
+    "rewe_lieferservice_delivering": SensorEntityDescription(
+        name="Rewe Lieferservice Delivering",
+        native_unit_of_measurement="package(s)",
+        icon="mdi:truck-delivery",
+        key="rewe_lieferservice_delivering",
+    ),
+    "rewe_lieferservice_delivered": SensorEntityDescription(
+        name="Rewe Lieferservice Delivered",
+        native_unit_of_measurement="package(s)",
+        icon="mdi:package-variant",
+        key="rewe_lieferservice_delivered",
+    ),
+    "rewe_lieferservice_packages": SensorEntityDescription(
+        name="Rewe Lieferservice Packages",
+        native_unit_of_measurement="package(s)",
+        icon="mdi:package-variant-closed",
+        key="rewe_lieferservice_packages",
+    ),
     ###
     # !!! Insert new sensors above these two !!!
     ###
@@ -1213,6 +1246,13 @@ IMAGE_SENSORS: Final[dict[str, SensorEntityDescription]] = {
         key="usps_mail_image_url",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
+    "usps_mail_grid_image_path": SensorEntityDescription(
+        name="Mail Grid Image Path",
+        icon="mdi:folder-multiple-image",
+        key="usps_mail_grid_image_path",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=False,
+    ),
 }
 
 BINARY_SENSORS: Final[dict[str, MailandPackagesBinarySensorEntityDescription]] = {
@@ -1221,12 +1261,14 @@ BINARY_SENSORS: Final[dict[str, MailandPackagesBinarySensorEntityDescription]] =
         key="usps_update",
         device_class=BinarySensorDeviceClass.UPDATE,
         selectable=False,
+        entity_registry_enabled_default=False,
     ),
     "amazon_update": MailandPackagesBinarySensorEntityDescription(
         name="Amazon Image Updated",
         key="amazon_update",
         device_class=BinarySensorDeviceClass.UPDATE,
         selectable=False,
+        entity_registry_enabled_default=False,
     ),
     "usps_mail_delivered": MailandPackagesBinarySensorEntityDescription(
         name="USPS Mail Delivered",
@@ -1267,4 +1309,5 @@ SHIPPERS = [
     "intelcom",
     "post_nl",
     "post_at",
+    "rewe_lieferservice",
 ]
