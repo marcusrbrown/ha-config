@@ -61,8 +61,13 @@
     commands: ['npx prettier@3.5.3 --no-color --write .'],
     executionMode: 'branch',
   },
+
+  prCreation: 'immediate',
+
   'pre-commit': {
     addLabels: ['pre-commit'],
     enabled: true,
   },
+
+  rebaseWhen: 'behind-base-branch',
 }
