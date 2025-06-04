@@ -33,7 +33,9 @@ jobs:
   renovate:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     name: Renovate
-    secrets: inherit
+    secrets:
+      APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
+      APPLICATION_PRIVATE_KEY: ${{ secrets.APPLICATION_PRIVATE_KEY }}
     uses: bfra-me/.github/.github/workflows/renovate.yaml@6b6336a0dc5bb8316868520ca6203489f1d4c10e # v3.0.1
     with:
       log-level: ${{ inputs.log-level || (github.event_name == 'pull_request' || github.ref_name != github.event.repository.default_branch) && 'debug' || 'info' }}
