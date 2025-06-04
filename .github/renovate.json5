@@ -1,75 +1,68 @@
 {
-  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-
-  extends: ['github>marcusrbrown/renovate-config#3.1.3'],
-
-  automergeType: 'pr',
-
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["github>marcusrbrown/renovate-config#3.1.3"],
+  automergeType: "pr",
   customManagers: [
     {
-      customType: 'regex',
-      fileMatch: ['^\\.pre-commit-config\\.yaml$'],
-      matchStrings: ['(?<depName>python)(?<currentValue>(\\d+\\.){2}\\d+)'],
-      packageNameTemplate: 'python/cpython',
-      datasourceTemplate: 'github-tags',
-      depTypeTemplate: 'engines',
-      extractVersionTemplate: '^v(?<version>.*)$',
+      customType: "regex",
+      managerFilePatterns: ["/^\\.pre-commit-config\\.yaml$/"],
+      matchStrings: ["(?<depName>python)(?<currentValue>(\\d+\\.){2}\\d+)"],
+      packageNameTemplate: "python/cpython",
+      datasourceTemplate: "github-tags",
+      depTypeTemplate: "engines",
+      extractVersionTemplate: "^v(?<version>.*)$",
     },
     {
-      customType: 'regex',
-      fileMatch: ['^\\.pre-commit-config\\.yaml$'],
-      matchStrings: ['(?<depName>\\S+)==(?<currentValue>(\\d+\\.){2}\\d+)'],
-      datasourceTemplate: 'pypi',
-      depTypeTemplate: 'dev-dependencies',
+      customType: "regex",
+      managerFilePatterns: ["/^\\.pre-commit-config\\.yaml$/"],
+      matchStrings: ["(?<depName>\\S+)==(?<currentValue>(\\d+\\.){2}\\d+)"],
+      datasourceTemplate: "pypi",
+      depTypeTemplate: "dev-dependencies",
     },
     {
-      customType: 'regex',
-      fileMatch: ['^mise\\.toml$'],
+      customType: "regex",
+      managerFilePatterns: ["/^mise\\.toml$/"],
       matchStrings: [
-        '["\']aqua:(?<depName>pre-commit/pre-commit)["\']\\s+=\\s+["\'](?<currentValue>(\\d+\\.){2}\\d+)["\']',
+        "[\"']aqua:(?<depName>pre-commit/pre-commit)[\"']\\s+=\\s+[\"'](?<currentValue>(\\d+\\.){2}\\d+)[\"']",
       ],
-      datasourceTemplate: 'github-releases',
-      depTypeTemplate: 'dev-dependencies',
+      datasourceTemplate: "github-releases",
+      depTypeTemplate: "dev-dependencies",
     },
   ],
-
-  'git-submodules': {
+  "git-submodules": {
     enabled: true,
   },
-
   packageRules: [
     {
-      matchManagers: ['pip_requirements'],
-      addLabels: ['python'],
+      matchManagers: ["pip_requirements"],
+      addLabels: ["python"],
     },
     {
-      matchManagers: ['pip_requirements'],
-      matchDepTypes: ['dev'],
-      rangeStrategy: 'pin',
+      matchManagers: ["pip_requirements"],
+      matchDepTypes: ["dev"],
+      rangeStrategy: "pin",
     },
     {
-      matchManagers: ['pip_requirements'],
-      matchUpdateTypes: ['minor', 'patch'],
+      matchManagers: ["pip_requirements"],
+      matchUpdateTypes: ["minor", "patch"],
       automerge: true,
     },
     {
-      matchPackageNames: ['esphome'],
+      matchPackageNames: ["esphome"],
       separateMajorMinor: false,
       separateMinorPatch: false,
     },
     {
-      matchPackageNames: ['pre-commit', 'pre-commit/pre-commit'],
-      groupName: 'pre-commit',
+      matchPackageNames: ["pre-commit", "pre-commit/pre-commit"],
+      groupName: "pre-commit",
     },
   ],
-
   postUpgradeTasks: {
-    commands: ['npx prettier@3.5.3 --no-color --write .'],
-    executionMode: 'branch',
+    commands: ["npx prettier@3.5.3 --no-color --write ."],
+    executionMode: "branch",
   },
-
-  'pre-commit': {
-    addLabels: ['pre-commit'],
+  "pre-commit": {
+    addLabels: ["pre-commit"],
     enabled: true,
   },
 }
