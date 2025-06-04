@@ -8,8 +8,6 @@
         ".yamllint*": "yaml"
     },
 
-    "prettier.configPath": "/config/.prettierrc.yaml",
-
     "search.exclude": {
         "**/.cloud": true,
         "**/__pycache__/**": true,
