@@ -56,8 +56,10 @@ from .const import (
     AMAZON_SHIPMENT_TRACKING,
     AMAZON_TIME_PATTERN,
     AMAZON_TIME_PATTERN_END,
+    AMAZON_TIME_PATTERN_REGEX,
     ATTR_AMAZON_IMAGE,
     ATTR_BODY,
+    ATTR_BODY_COUNT,
     ATTR_CODE,
     ATTR_COUNT,
     ATTR_EMAIL,
@@ -134,19 +136,16 @@ async def _test_login(
     """
     # Catch invalid mail server / host names
     try:
+        ssl_context = (
+            ssl.create_client_context()
+            if verify
+            else ssl.create_no_verify_ssl_context()
+        )
         if security == "SSL":
-            if not verify:
-                context = ssl.client_context_no_verify()
-            else:
-                context = ssl.client_context()
-            account = imaplib.IMAP4_SSL(host=host, port=port, ssl_context=context)
+            account = imaplib.IMAP4_SSL(host=host, port=port, ssl_context=ssl_context)
         elif security == "startTLS":
-            if not verify:
-                context = ssl.client_context_no_verify()
-            else:
-                context = ssl.client_context()
             account = imaplib.IMAP4(host=host, port=port)
-            account.starttls(context)
+            account.starttls(ssl_context)
         else:
             _LOGGER.warning(NO_SSL)
             account = imaplib.IMAP4(host=host, port=port)
@@ -166,7 +165,8 @@ async def _test_login(
 
 
 def default_image_path(
-    hass: HomeAssistant, config_entry: ConfigEntry  # pylint: disable=unused-argument
+    hass: HomeAssistant,  # pylint: disable=unused-argument
+    config_entry: ConfigEntry,
 ) -> str:
     """Return value of the default image path.
 
@@ -493,19 +493,16 @@ def login(
     Returns account object
     """
     try:
+        ssl_context = (
+            ssl.create_client_context()
+            if verify
+            else ssl.create_no_verify_ssl_context()
+        )
         if security == "SSL":
-            if not verify:
-                context = ssl.get_default_no_verify_context()
-            else:
-                context = ssl.get_default_context()
-            account = imaplib.IMAP4_SSL(host=host, port=port, ssl_context=context)
+            account = imaplib.IMAP4_SSL(host=host, port=port, ssl_context=ssl_context)
         elif security == "startTLS":
-            if not verify:
-                context = ssl.get_default_no_verify_context()
-            else:
-                context = ssl.get_default_context()
             account = imaplib.IMAP4(host=host, port=port)
-            account.starttls(context)
+            account.starttls(ssl_context)
         else:
             account = imaplib.IMAP4(host=host, port=port)
 
@@ -756,7 +753,7 @@ def get_mails(
                         elif part.get_content_type() == "image/jpeg":
                             _LOGGER.debug("Extracting image from email")
                             filename = part.get_filename()
-                            junkmail = ["mailer", "content"]
+                            junkmail = ["mailer", "content", "package"]
                             if any(junk in filename for junk in junkmail):
                                 _LOGGER.debug("Discarding junk mail.")
                                 continue
@@ -1057,7 +1054,11 @@ def get_count(
         )
         if server_response == "OK" and data[0] is not None:
             if ATTR_BODY in SENSOR_DATA[sensor_type].keys():
-                count += find_text(data, account, SENSOR_DATA[sensor_type][ATTR_BODY])
+                body_count = SENSOR_DATA[sensor_type].get(ATTR_BODY_COUNT, False)
+                _LOGGER.debug("Check body for mail count? %s", body_count)
+                count += find_text(
+                    data, account, SENSOR_DATA[sensor_type][ATTR_BODY], body_count
+                )
             else:
                 count += len(data[0].split())
 
@@ -1151,7 +1152,9 @@ def get_tracking(
     return tracking
 
 
-def find_text(sdata: Any, account: Type[imaplib.IMAP4_SSL], search_terms: list) -> int:
+def find_text(
+    sdata: Any, account: Type[imaplib.IMAP4_SSL], search_terms: list, count: bool
+) -> int:
     """Filter for specific words in email.
 
     Return count of items found as integer
@@ -1175,7 +1178,18 @@ def find_text(sdata: Any, account: Type[imaplib.IMAP4_SSL], search_terms: list) 
                         email_msg = part.get_payload(decode=True)
                         email_msg = email_msg.decode("utf-8", "ignore")
                         pattern = re.compile(rf"{search}")
-                        if (found := pattern.findall(email_msg)) and len(found) > 0:
+                        if (
+                            count
+                            and (found := pattern.search(email_msg))
+                            and len(found.groups()) > 0
+                        ):
+                            _LOGGER.debug(
+                                "Found (%s) in email result: %s",
+                                search,
+                                str(found.groups()),
+                            )
+                            count = int(found.group(1))
+                        elif (found := pattern.findall(email_msg)) and len(found) > 0:
                             _LOGGER.debug(
                                 "Found (%s) in email %s times.", search, str(len(found))
                             )
@@ -1397,7 +1411,6 @@ def amazon_otp(account: Type[imaplib.IMAP4_SSL], fwds: Optional[list] = None) ->
     email_addresses.extend(_process_amazon_forwards(fwds))
 
     for address in email_addresses:
-
         (server_response, sdata) = email_search(
             account, address, tfmt, AMAZON_OTP_SUBJECT
         )
@@ -1480,6 +1493,20 @@ def amazon_date_search(email_msg: str) -> int:
         if (result := email_msg.find(pattern)) != -1:
             return result
     return -1
+
+
+def amazon_date_regex(email_msg: str) -> str | None:
+    """Look for regex strings in email message and return them."""
+    for body_regex in AMAZON_TIME_PATTERN_REGEX:
+        pattern = re.compile(rf"{body_regex}")
+        search = pattern.search(email_msg)
+        if search is not None and len(search.groups()) > 0:
+            _LOGGER.debug(
+                "Amazon Regex: %s Count: %s", body_regex, len(search.groups())
+            )
+            # return the first group match (first date from a date range)
+            return search.group(1)
+    return None
 
 
 def amazon_date_format(arrive_date: str, lang: str) -> tuple:
@@ -1609,14 +1636,20 @@ def get_items(
                         if search not in email_msg:
                             continue
 
-                        start = email_msg.find(search) + len(search)
-                        end = amazon_date_search(email_msg)
+                        amazon_regex_result = amazon_date_regex(email_msg)
+                        if amazon_regex_result is not None:
+                            _LOGGER.debug("Found regex result: %s", amazon_regex_result)
+                            arrive_date = amazon_regex_result
 
-                        arrive_date = email_msg[start:end].replace(">", "").strip()
-                        _LOGGER.debug("First pass: %s", arrive_date)
-                        arrive_date = arrive_date.split(" ")
-                        arrive_date = arrive_date[0:3]
-                        arrive_date = " ".join(arrive_date).strip()
+                        else:
+                            start = email_msg.find(search) + len(search)
+                            end = amazon_date_search(email_msg)
+
+                            arrive_date = email_msg[start:end].replace(">", "").strip()
+                            _LOGGER.debug("First pass: %s", arrive_date)
+                            arrive_date = arrive_date.split(" ")
+                            arrive_date = arrive_date[0:3]
+                            arrive_date = " ".join(arrive_date).strip()
 
                         # Get the date object
                         dateobj = dateparser.parse(arrive_date)

@@ -5,8 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import voluptuous as vol
+from bluetooth_data_tools import monotonic_time_coarse
 from homeassistant import config_entries
-from homeassistant.components.bluetooth import MONOTONIC_TIME, BluetoothServiceInfoBleak
 from homeassistant.config_entries import OptionsFlowWithConfigEntry
 from homeassistant.core import callback
 from homeassistant.helpers import device_registry as dr
@@ -23,7 +23,7 @@ from homeassistant.helpers.selector import (
 from .const import (
     ADDR_TYPE_IBEACON,
     ADDR_TYPE_PRIVATE_BLE_DEVICE,
-    BDADDR_TYPE_PRIVATE_RESOLVABLE,
+    BDADDR_TYPE_RANDOM_RESOLVABLE,
     CONF_ATTENUATION,
     CONF_DEVICES,
     CONF_DEVTRACK_TIMEOUT,
@@ -43,14 +43,16 @@ from .const import (
     DEFAULT_REF_POWER,
     DEFAULT_SMOOTHING_SAMPLES,
     DEFAULT_UPDATE_INTERVAL,
+    DISTANCE_INFINITE,
     DOMAIN,
     DOMAIN_PRIVATE_BLE_DEVICE,
     NAME,
 )
-from .util import rssi_to_metres
+from .util import mac_redact, rssi_to_metres
 
 if TYPE_CHECKING:
-    from homeassistant.data_entry_flow import FlowResult
+    from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
+    from homeassistant.config_entries import ConfigFlowResult
 
     from . import BermudaConfigEntry
     from .bermuda_device import BermudaDevice
@@ -71,7 +73,7 @@ class BermudaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Initialize."""
         self._errors = {}
 
-    async def async_step_bluetooth(self, discovery_info: BluetoothServiceInfoBleak) -> FlowResult:
+    async def async_step_bluetooth(self, discovery_info: BluetoothServiceInfoBleak) -> ConfigFlowResult:
         """
         Support automatic initiation of setup through bluetooth discovery.
         (we still show a confirmation form to the user, though)
@@ -142,8 +144,11 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
         active_devices = self.coordinator.count_active_devices()
         active_scanners = self.coordinator.count_active_scanners()
 
-        messages["device_count"] = f"{active_devices} active out of {len(self.devices)}"
-        messages["scanner_count"] = f"{active_scanners} active out of {len(self.coordinator.scanner_list)}"
+        messages["device_counter_active"] = f"{active_devices}"
+        messages["device_counter_devices"] = f"{len(self.devices)}"
+        messages["scanner_counter_active"] = f"{active_scanners}"
+        messages["scanner_counter_scanners"] = f"{len(self.coordinator.scanner_list)}"
+
         if len(self.coordinator.scanner_list) == 0:
             messages["status"] = (
                 "You need to configure some bluetooth scanners before Bermuda will have anything to work with. "
@@ -159,7 +164,7 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
             messages["status"] = "You have at least some active devices, this is good."
 
         # Build a markdown table of scanners so the user can see what's up.
-        scanner_table = "\nStatus of scanners:\n\n|Scanner|Address|Last advertisement|\n|---|---|---:|\n"
+        scanner_table = "\n\nStatus of scanners:\n\n|Scanner|Address|Last advertisement|\n|---|---|---:|\n"
         # Use emoji to indicate if age is "good"
         for scanner in self.coordinator.get_active_scanner_summary():
             age = int(scanner.get("last_stamp_age", 999))
@@ -169,10 +174,11 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
                 status = '<ha-icon icon="mdi:alert-outline"></ha-icon>'
             else:
                 status = '<ha-icon icon="mdi:skull-crossbones"></ha-icon>'
-
+            # Remove centre octets from mac for condensed, privatised display
+            shortmac = mac_redact(scanner.get("address", "ERR"))
             scanner_table += (
-                f"| {scanner.get("name", "NAME_ERR")}| [{scanner.get("address", "ADDR_ERR")}]"
-                f"| {status} {int(scanner.get("last_stamp_age")):d} seconds ago.|\n"
+                f"| {scanner.get('name', 'NAME_ERR')}| [{shortmac}]"
+                f"| {status} {(scanner.get('last_stamp_age', DISTANCE_INFINITE)):.2f} seconds ago.|\n"
             )
         messages["status"] += scanner_table
 
@@ -245,7 +251,7 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
         for device in self.devices.values():
             # Iterate through all the discovered devices to build the options list
 
-            name = device.prefname or device.name or ""
+            name = device.name
 
             if device.is_scanner:
                 # We don't "track" scanner devices, per se
@@ -255,8 +261,8 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
                 continue
             if device.address_type == ADDR_TYPE_IBEACON:
                 # This is an iBeacon meta-device
-                if len(device.beacon_sources) > 0:
-                    source_mac = f"[{device.beacon_sources[0].upper()}]"
+                if len(device.metadevice_sources) > 0:
+                    source_mac = f"[{device.metadevice_sources[0].upper()}]"
                 else:
                     source_mac = ""
 
@@ -264,15 +270,15 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
                     SelectOptionDict(
                         value=device.address.upper(),
                         label=f"iBeacon: {device.address.upper()} {source_mac} "
-                        f"{name if device.address.upper() != name.upper() else ""}",
+                        f"{name if device.address.upper() != name.upper() else ''}",
                     )
                 )
                 continue
 
-            if device.address_type == BDADDR_TYPE_PRIVATE_RESOLVABLE:
+            if device.address_type == BDADDR_TYPE_RANDOM_RESOLVABLE:
                 # This is a random MAC, we should tag it as such
 
-                if device.last_seen < MONOTONIC_TIME() - (60 * 60 * 2):  # two hours
+                if device.last_seen < monotonic_time_coarse() - (60 * 60 * 2):  # two hours
                     # A random MAC we haven't seen for a while is not much use, skip
                     continue
 
@@ -405,42 +411,42 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
                 description_placeholders=_ugly_token_hack
                 | {"suffix": "After you click Submit, the new distances will be shown here."},
             )
+        results_str = ""
         device = self._get_bermuda_device_from_registry(user_input[CONF_DEVICES])
+        if device is not None:
+            scanner = device.get_scanner(user_input[CONF_SCANNERS])
+            if scanner is None:
+                return self.async_show_form(
+                    step_id="calibration1_global",
+                    errors={"err_scanner_no_record": "The selected scanner hasn't (yet) seen this device."},
+                    data_schema=vol.Schema(data_schema),
+                    description_placeholders=_ugly_token_hack
+                    | {"suffix": "After you click Submit, the new distances will be shown here."},
+                )
 
-        if user_input[CONF_SCANNERS] in device.scanners:
-            scanner = device.scanners[user_input[CONF_SCANNERS]]
-        else:
-            return self.async_show_form(
-                step_id="calibration_global",
-                errors={"err_scanner_no_record": "The selected scanner hasn't (yet) seen this device."},
-                data_schema=vol.Schema(data_schema),
-                description_placeholders=_ugly_token_hack
-                | {"suffix": "After you click Submit, the new distances will be shown here."},
-            )
+            distances = [
+                rssi_to_metres(historical_rssi, self._last_ref_power, self._last_attenuation)
+                for historical_rssi in scanner.hist_rssi
+            ]
 
-        distances = [
-            rssi_to_metres(historical_rssi, self._last_ref_power, self._last_attenuation)
-            for historical_rssi in scanner.hist_rssi
-        ]
+            # Build a markdown table showing distance and rssi history for the
+            # selected device / scanner combination
+            results_str = f"| {device.name} |"
+            # Limit the number of columns to what's available up to a max of 5.
+            cols = min(5, len(distances), len(scanner.hist_rssi))
+            for i in range(cols):
+                results_str += f" {i} |"
+            results_str += "\n|---|"
+            for i in range(cols):  # noqa for unused var i
+                results_str += "---:|"
 
-        # Build a markdown table showing distance and rssi history for the
-        # selected device / scanner combination
-        results_str = f"| {device.name} |"
-        # Limit the number of columns to what's available up to a max of 5.
-        cols = min(5, len(distances), len(scanner.hist_rssi))
-        for i in range(cols):
-            results_str += f" {i} |"
-        results_str += "\n|---|"
-        for i in range(cols):  # noqa for unused var i
-            results_str += "---:|"
-
-        results_str += "\n| Estimate (m) |"
-        for i in range(cols):
-            results_str += f" `{distances[i]:>5.2f}`|"
-        results_str += "\n| RSSI Actual |"
-        for i in range(cols):
-            results_str += f" `{scanner.hist_rssi[i]:>5}`|"
-        results_str += "\n"
+            results_str += "\n| Estimate (m) |"
+            for i in range(cols):
+                results_str += f" `{distances[i]:>5.2f}`|"
+            results_str += "\n| RSSI Actual |"
+            for i in range(cols):
+                results_str += f" `{scanner.hist_rssi[i]:>5}`|"
+            results_str += "\n"
 
         return self.async_show_form(
             step_id="calibration1_global",
@@ -471,7 +477,9 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
                 rssi_offset_by_address = {}
                 for address in self.coordinator.scanner_list:
                     scanner_name = self.coordinator.devices[address].name
-                    rssi_offset_by_address[address] = user_input[CONF_SCANNER_INFO][scanner_name]
+                    val = user_input[CONF_SCANNER_INFO][scanner_name]
+                    # Clip to keep in sensible range, fixes #497
+                    rssi_offset_by_address[address] = max(min(val, 127), -127)
 
                 self.options.update({CONF_RSSI_OFFSETS: rssi_offset_by_address})
                 # Per previous step, returning elsewhere in the flow after updating the entry doesn't
@@ -513,34 +521,35 @@ class BermudaOptionsFlowHandler(OptionsFlowWithConfigEntry):
                 data_schema=vol.Schema(data_schema),
                 description_placeholders={"suffix": "After you click Submit, the new distances will be shown here."},
             )
-        device = self._get_bermuda_device_from_registry(self._last_device)
-        results = {}
-        # Gather new estimates for distances using rssi hist and the new offset.
-        for scanner in self.coordinator.scanner_list:
-            scanner_name = self.coordinator.devices[scanner].name
-            cur_offset = self._last_scanner_info.get(scanner_name, 0)
-            if scanner in device.scanners:
-                results[scanner_name] = [
-                    rssi_to_metres(
-                        historical_rssi + cur_offset,
-                        self.options.get(CONF_REF_POWER, DEFAULT_REF_POWER),
-                        self.options.get(CONF_ATTENUATION, DEFAULT_ATTENUATION),
-                    )
-                    for historical_rssi in device.scanners[scanner].hist_rssi
-                ]
-        # Format the results for display (HA has full markdown support!)
-        results_str = "| Scanner | Measurements (new...old)|\n|---|---|"
-        for scanner_name, distances in results.items():
-            results_str += f"\n|{scanner_name}|<pre>"
-            i = 0
-            for distance in distances:
-                # limit how many columns we'll dump
-                i += 1
-                if i > 5:
-                    continue
-                # We round to 2 places (1cm) and pad to fit nn.nn
-                results_str += f" {distance:>6.2f}"
-            results_str += "</pre>|"
+        if isinstance(self._last_device, str):
+            device = self._get_bermuda_device_from_registry(self._last_device)
+        results_str = ""
+        if device is not None and isinstance(self._last_scanner_info, dict):
+            results = {}
+            # Gather new estimates for distances using rssi hist and the new offset.
+            for scanner in self.coordinator.scanner_list:
+                scanner_name = self.coordinator.devices[scanner].name
+                cur_offset = self._last_scanner_info.get(scanner_name, 0)
+                if (scanneradvert := device.get_scanner(scanner)) is not None:
+                    results[scanner_name] = [
+                        rssi_to_metres(
+                            historical_rssi + cur_offset,
+                            self.options.get(CONF_REF_POWER, DEFAULT_REF_POWER),
+                            self.options.get(CONF_ATTENUATION, DEFAULT_ATTENUATION),
+                        )
+                        for historical_rssi in scanneradvert.hist_rssi
+                    ]
+            # Format the results for display (HA has full markdown support!)
+            results_str = "| Scanner | 0 | 1 | 2 | 3 | 4 |\n|---|---:|---:|---:|---:|---:|"
+            for scanner_name, distances in results.items():
+                results_str += f"\n|{scanner_name}|"
+                for i in range(5):
+                    # We round to 2 places (1cm) and pad to fit nn.nn
+                    try:
+                        results_str += f" `{distances[i]:>6.2f}`|"
+                    except IndexError:
+                        results_str += "`-`|"
+            results_str += "\n\n"
 
         return self.async_show_form(
             step_id="calibration2_scanners",
