@@ -44,7 +44,7 @@
           "detect_meters": "Automatisk oppdagelse av målere",
           "detect_batteries": "Automatisk gjenkjenning av batterier",
           "detect_extras": "Automatisk oppdage flere enheter",
-          "advanced_power_control": "Avansert strømkontroll",
+          "advanced_power_control": "Strømkontrollalternativer",
           "sleep_after_write": "Inverter Command Delay (sekunder)"
         }
       },
@@ -98,6 +98,14 @@
           "already_configured": "Vert og port er allerede konfigurert i en annen hub."
         }
       }
+    },
+    "detect_timeout_gpc": {
+      "title": "Global dynamisk kraftkontroll timeout",
+      "description": "Omformeren svarte ikke mens du leste data for global dynamisk kraftkontroll."
+    },
+    "detect_timeout_apc": {
+      "title": "Avansert timeout for strømkontroll",
+      "description": "Omformeren svarte ikke mens du leste data for avanserte strømkontroller."
     }
   }
 }

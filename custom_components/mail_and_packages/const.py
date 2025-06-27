@@ -12,7 +12,7 @@ from .entity import MailandPackagesBinarySensorEntityDescription
 
 DOMAIN = "mail_and_packages"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "0.4.3-b3"
+VERSION = "0.4.3-b14"
 ISSUE_URL = "http://github.com/moralmunky/Home-Assistant-Mail-And-Packages"
 PLATFORM = "sensor"
 PLATFORMS = ["binary_sensor", "camera", "sensor"]
@@ -38,6 +38,7 @@ ATTR_IMAGE_NAME = "image_name"
 ATTR_EMAIL = "email"
 ATTR_SUBJECT = "subject"
 ATTR_BODY = "body"
+ATTR_BODY_COUNT = "body_count"
 ATTR_PATTERN = "pattern"
 ATTR_USPS_MAIL = "usps_mail"
 
@@ -97,6 +98,7 @@ AMAZON_DOMAINS = [
 ]
 AMAZON_DELIVERED_SUBJECT = [
     "Delivered: Your",
+    "Your Amazon order has arrived!",
     "Consegna effettuata:",
     "Dostarczono:",
     "Geliefert:",
@@ -149,6 +151,7 @@ AMAZON_TIME_PATTERN = [
     "Arrivée :",
     "Verwachte bezorgdatum:",
     "Votre date de livraison prévue est :",
+    "Arriving",
 ]
 AMAZON_TIME_PATTERN_END = [
     "Previously expected:",
@@ -164,6 +167,10 @@ AMAZON_TIME_PATTERN_END = [
     "Suivre",
     "Volg je pakket",
     "Je pakket volgen",
+]
+AMAZON_TIME_PATTERN_REGEX = [
+    "Arriving (\\w+ \\d+) - (\\w+ \\d+)",
+    "Arriving (\\w+ \\d+)",
 ]
 AMAZON_EXCEPTION_SUBJECT = "Delivery update:"
 AMAZON_EXCEPTION_BODY = "running late"
@@ -258,7 +265,11 @@ SENSOR_DATA = {
     "ups_tracking": {"pattern": ["1Z?[0-9A-Z]{16}"]},
     # FedEx
     "fedex_delivered": {
-        "email": ["TrackingUpdates@fedex.com", "fedexcanada@fedex.com"],
+        "email": [
+            "TrackingUpdates@fedex.com",
+            "fedexcanada@fedex.com",
+            "noreply@fedex.com",
+        ],
         "subject": [
             "Your package has been delivered",
             "Your packages have been delivered",
@@ -266,7 +277,11 @@ SENSOR_DATA = {
         ],
     },
     "fedex_delivering": {
-        "email": ["TrackingUpdates@fedex.com", "fedexcanada@fedex.com"],
+        "email": [
+            "TrackingUpdates@fedex.com",
+            "fedexcanada@fedex.com",
+            "noreply@fedex.com",
+        ],
         "subject": [
             "Delivery scheduled for today",
             "Your package is scheduled for delivery today",
@@ -287,9 +302,22 @@ SENSOR_DATA = {
             "Delivery Notification",
         ],
     },
-    "capost_delivering": {},
+    "capost_delivering": {
+        "email": [
+            "donotreply-nepasrepondre@notifications.canadapost-postescanada.ca",
+        ],
+        "subject": [
+            "Your parcel is out for delivery",
+        ],
+    },
     "capost_packages": {},
-    "capost_tracking": {},
+    "capost_tracking": {"pattern": ["\\d{16}"]},
+    "capost_mail": {
+        "email": ["donotreply-nepasrepondre@communications.canadapost-postescanada.ca"],
+        "subject": ["You have mail on the way"],
+        "body": ["\\sYou have (\\d) pieces of mail\\s"],
+        "body_count": True,
+    },
     # DHL
     "dhl_delivered": {
         "email": [
@@ -609,6 +637,7 @@ SENSOR_DATA = {
             "Your package is on the way!",
             "Your package is on its way",
             "Votre colis est en chemin!",
+            "package is on its way",
         ],
     },
     "intelcom_packages": {
@@ -620,9 +649,10 @@ SENSOR_DATA = {
         "subject": [
             "Your package has been received!",
             "We've received your package",
+            "We've received your",
         ],
     },
-    "intelcom_tracking": {"pattern": ["INTLCMD[0-9]{9}"]},
+    "intelcom_tracking": {"pattern": ["NSPRSO[0-9]{10}"]},
     # Walmart
     "walmart_delivering": {
         "email": ["help@walmart.com"],
@@ -697,7 +727,7 @@ SENSOR_DATA = {
     "post_at_tracking": {"pattern": ["[0-9]{22}"]},
     # Rewe Lieferservice
     "rewe_lieferservice_delivering": {
-        "email": ["lieferservice@rewe.de"],
+        "email": ["reweshop@mailing.rewe.de"],
         "subject": ["Lieferschein zu deiner Bestellung beim REWE Lieferservice"],
         "body": ["Deine Lieferinformationen"],
     },
@@ -835,6 +865,12 @@ SENSOR_TYPES: Final[dict[str, SensorEntityDescription]] = {
         native_unit_of_measurement="package(s)",
         icon="mdi:truck-delivery",
         key="capost_delivering",
+    ),
+    "capost_mail": SensorEntityDescription(
+        name="Mail Canada Post Mail",
+        native_unit_of_measurement="piece(s)",
+        icon="mdi:mailbox-up",
+        key="capost_mail",
     ),
     "capost_packages": SensorEntityDescription(
         name="Mail Canada Post Packages",
