@@ -1,6 +1,6 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: ['github>marcusrbrown/renovate-config#4.0.4'],
+  extends: ['github>marcusrbrown/renovate-config#4.1.0'],
   automergeType: 'pr',
   customManagers: [
     {
