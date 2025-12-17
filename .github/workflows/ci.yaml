@@ -32,7 +32,7 @@ jobs:
       - name: ⤵️ Check out code from GitHub
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
       - name: 🚀 Run Remark Lint
-        uses: 'docker://pipelinecomponents/remark-lint:latest'
+        uses: 'docker://pipelinecomponents/remark-lint:latest@sha256:cbfe6f15be2d8bf5ace7f5abab026f7b7b38e24ab53621855b406ad5bd085711'
         continue-on-error: true
         with:
           args: 'remark --no-stdout --color --frail --use preset-lint-recommended .'
