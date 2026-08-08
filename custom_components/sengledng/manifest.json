@@ -7,7 +7,7 @@
   "documentation": "https://github.com/kylev/ha-sengledng",
   "iot_class": "cloud_polling",
   "loggers": ["mqtt"],
-  "requirements": ["asyncio-mqtt==0.16.1"],
+  "requirements": ["asyncio-mqtt==0.16.2"],
   "version": "0.4.2",
   "zeroconf": ["_sengled._udp.local."]
 }
